@@ -235,7 +235,43 @@
         .status-pending { background-color: #78350f; color: #fbbf24; }
         .status-processing { background-color: #1e3a8a; color: #60a5fa; }
         .status-completed { background-color: #064e3b; color: #34d399; }
-        .status-failed { background-color: #7f1d1d; color: #f87171; }
+        .btn-download-icon {
+            color: #38bdf8;
+            background-color: #334155;
+            border: 1px solid #475569;
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+
+        .btn-download-icon:hover {
+            background-color: #475569;
+            border-color: #38bdf8;
+        }
+
+        .btn-delete-icon {
+            color: #ef4444;
+            background-color: #334155;
+            border: 1px solid #475569;
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+
+        .btn-delete-icon:hover {
+            background-color: #475569;
+            border-color: #ef4444;
+        }
 
         .no-docs {
             text-align: center;
@@ -394,10 +430,39 @@
                                 <div class="doc-date">Uploaded: ${uploadDate}</div>
                             </div>
                         </div>
-                        <span class="badge-status status-${statusLower}">${doc.status}</span>
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <a href="${doc.file}" download="${doc.original_name}" class="btn-download-icon" title="Download File">
+                                <i class="fa-solid fa-download"></i>
+                            </a>
+                            <button class="btn-delete-icon" onclick="deleteDocument('${doc.id}')" title="Delete Document">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
                     </div>
                 `;
             }).join('');
+        }
+
+        // Delete document from REST API
+        async function deleteDocument(docId) {
+            if (!confirm("Are you sure you want to delete this document?")) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/contracts/${docId}/`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    showAlert("Document deleted successfully!", "success");
+                    loadDocuments(); // Refresh list
+                } else {
+                    showAlert("Failed to delete document.", "error");
+                }
+            } catch (err) {
+                showAlert("Network error occurred during deletion.", "error");
+            }
         }
 
         // Upload file via Fetch API
