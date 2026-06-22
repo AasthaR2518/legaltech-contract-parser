@@ -2,17 +2,21 @@
 
 This project is an automated legal contract parsing engine built using Django. The goal is to upload PDF contracts (like NDAs or MSAs) and parse them to extract clauses and flag risks automatically.
 
-## Status: Week 1 Setup Completed
+## Status: Week 2 Completed
 
-We have set up the basic project structure and database configuration. Here is what has been implemented so far:
+Here is what has been implemented so far:
 
-- **Django Project Setup**: Configured Django with PostgreSQL database settings (falls back to SQLite for local development if PostgreSQL credentials are not provided in env).
-- **Database Models**: Designed and created three models:
-  - `Document`: Stores metadata and status of the uploaded file.
-  - `ExtractedClause`: For storing clauses found in the document.
-  - `RiskFlag`: To flag any risks in the clauses with details like risk level and suggested fix.
-- **Upload API Endpoint**: Created a REST API (`/api/contracts/upload/`) that accepts PDF uploads. It validates that the file is indeed a PDF and is not larger than 10MB.
-- **Testing UI Dashboard**: Created a simple HTML template served at the home URL (`/`) which provides a drag-and-drop box to upload contracts and shows the list of uploaded files.
+### Week 1: Base Setup & Document Management
+- **Django Project Setup**: Configured Django with database settings supporting PostgreSQL and SQLite.
+- **Database Models**: Designed and created models (`Document`, `ExtractedClause`, `RiskFlag`).
+- **Upload API Endpoint**: Created a REST API (`/api/contracts/upload/`) to handle file uploads.
+- **Testing UI Dashboard**: Created a simple HTML template served at `/` to upload and list contracts.
+
+### Week 2: Multi-format Support, Text Extraction & File Actions
+- **Multi-format Support**: Expanded upload validations to support PDF, JPG, PNG, Word (DOC/DOCX), and TXT formats.
+- **Auto-copy & Text Extraction**: Implemented background processing using PyMuPDF (`fitz`) to copy uploaded files and extract their raw text into separate `.txt` files under `media/copied_contracts/`.
+- **Download and Delete Features**: Added file download links and a direct Delete button linked to a backend `DELETE` API endpoint (which cleans up both database records and physical files on disk).
+- **Developer UI Enhancements**: Re-styled the dashboard for a clean mid-level developer look with dynamic file-type specific icons.
 
 ## Project Structure
 
