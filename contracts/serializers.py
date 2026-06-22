@@ -1,3 +1,4 @@
+import os
 from rest_framework import serializers
 from .models import Document, ExtractedClause, RiskFlag
 
@@ -34,23 +35,14 @@ class DocumentUploadSerializer(serializers.Serializer):
     file = serializers.FileField(required=True)
 
     def validate_file(self, value):
-        # Validate that the file is not empty
-        if not value:
-            raise serializers.ValidationError("No file was uploaded.")
+        # File size check (limit to 10 MB)
+        if value.size > 10 * 1024 * 1024:
+            raise serializers.ValidationError("File size exceeds the 10MB limit.")
 
-        # Validate file size (limit to 10 MB)
-        max_size = 10 * 1024 * 1024 # 10 MB
-        if value.size > max_size:
-            raise serializers.ValidationError(f"File size exceeds the 10MB limit (uploaded size: {value.size / (1024*1024):.2f}MB).")
-
-        # Validate extension
-        filename = value.name
-        if not filename.lower().endswith('.pdf'):
-            raise serializers.ValidationError("Invalid file type. Only PDF documents are allowed.")
-
-        # Validate MIME type
-        content_type = value.content_type
-        if content_type != 'application/pdf':
-            raise serializers.ValidationError("File content must be a PDF application/pdf.")
+        # File extension check
+        ext = os.path.splitext(value.name)[1].lower()
+        allowed_extensions = ['.pdf', '.jpg', '.jpeg', '.png', '.doc', '.docx', '.txt']
+        if ext not in allowed_extensions:
+            raise serializers.ValidationError("Invalid file type. Only PDF, JPG, PNG, DOC/DOCX, and TXT files are allowed.")
 
         return value
