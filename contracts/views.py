@@ -1,3 +1,4 @@
+import os
 from rest_framework import status
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.response import Response
@@ -23,6 +24,10 @@ def document_upload_view(request):
             original_name=uploaded_file.name,
             status='PENDING'
         )
+
+        # Copy the uploaded file to the specific folder
+        from .document_processor import process_and_copy_document
+        process_and_copy_document(document)
         
         # Serialize the created document metadata
         output_serializer = DocumentSerializer(document)
@@ -44,7 +49,7 @@ def document_list_view(request):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-@api_view(['GET'])
+@api_view(['GET', 'DELETE'])
 def document_detail_view(request, pk):
     try:
         document = Document.objects.get(pk=pk)
@@ -54,6 +59,21 @@ def document_detail_view(request, pk):
             status=status.HTTP_404_NOT_FOUND
         )
         
-    serializer = DocumentDetailSerializer(document)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    if request.method == 'GET':
+        serializer = DocumentDetailSerializer(document)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+        
+    elif request.method == 'DELETE':
+        # Remove the file from disk if it exists
+        if document.file and os.path.exists(document.file.path):
+            try:
+                os.remove(document.file.path)
+            except Exception as e:
+                print(f"Error removing file from disk during deletion: {e}")
+                
+        document.delete()
+        return Response(
+            {"message": "Document deleted successfully."},
+            status=status.HTTP_200_OK
+        )
 
