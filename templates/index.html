@@ -298,7 +298,7 @@
             <i class="fa-solid fa-scale-balanced"></i>
             <span>LegalTech Parser</span>
         </div>
-        <div class="badge-status-top">Week 1 Demo</div>
+       
     </header>
 
     <main>
@@ -431,7 +431,7 @@
                             </div>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <a href="${doc.file}" download="${doc.original_name}" class="btn-download-icon" title="Download File">
+                            <a href="/api/contracts/${doc.id}/download/" class="btn-download-icon" title="Download ZIP Package">
                                 <i class="fa-solid fa-download"></i>
                             </a>
                             <button class="btn-delete-icon" onclick="deleteDocument('${doc.id}')" title="Delete Document">

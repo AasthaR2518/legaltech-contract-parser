@@ -14,6 +14,8 @@ class Document(models.Model):
     original_name = models.CharField(max_length=255)
     uploaded_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
+    copied_file_path = models.CharField(max_length=500, null=True, blank=True)
+    extracted_text_path = models.CharField(max_length=500, null=True, blank=True)
 
     class Meta:
         ordering = ['-uploaded_at']

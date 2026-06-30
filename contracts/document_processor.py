@@ -30,12 +30,16 @@ def process_and_copy_document(document):
     # 2. Extract and save text as a .txt file
     txt_path = extract_and_save_text(source_path, destination_folder, txt_filename)
 
-    if copied_path:
-        print(f"Successfully created a copy of {original_name} at: {copied_path}")
-    else:
-        print(f"Failed to copy {original_name}")
+    # Update document status and paths in database
+    document.copied_file_path = copied_path
+    document.extracted_text_path = txt_path
 
-    if txt_path:
+    if copied_path and txt_path:
+        document.status = 'COMPLETED'
+        print(f"Successfully created a copy of {original_name} at: {copied_path}")
         print(f"Successfully extracted text of {original_name} to: {txt_path}")
     else:
-        print(f"Failed to extract text of {original_name}")
+        document.status = 'FAILED'
+        print(f"Failed to process {original_name}")
+
+    document.save()
