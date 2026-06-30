@@ -34,10 +34,22 @@ def process_and_copy_document(document):
     document.copied_file_path = copied_path
     document.extracted_text_path = txt_path
 
+    analysis_success = False
     if copied_path and txt_path:
+        try:
+            # Read the extracted text content
+            with open(txt_path, 'r', encoding='utf-8', errors='ignore') as f:
+                extracted_text = f.read()
+            
+            # Run NLP and risk analysis
+            from .analyzer import analyze_contract_text
+            analysis_success = analyze_contract_text(document, extracted_text)
+        except Exception as e:
+            print(f"Error during document analysis: {e}")
+
+    if copied_path and txt_path and analysis_success:
         document.status = 'COMPLETED'
-        print(f"Successfully created a copy of {original_name} at: {copied_path}")
-        print(f"Successfully extracted text of {original_name} to: {txt_path}")
+        print(f"Successfully created copy, extracted text, and completed analysis of {original_name}")
     else:
         document.status = 'FAILED'
         print(f"Failed to process {original_name}")

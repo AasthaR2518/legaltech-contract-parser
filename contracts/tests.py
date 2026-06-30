@@ -166,3 +166,54 @@ class DocumentDownloadTests(TestCase):
             pass
 
 
+from .analyzer import analyze_contract_text
+from .models import ExtractedClause, RiskFlag
+
+class DocumentAnalysisTests(TestCase):
+    def setUp(self):
+        self.doc = Document.objects.create(
+            original_name="test_contract.txt",
+            status="PENDING"
+        )
+
+    def test_analysis_flow(self):
+        contract_text = """
+        MUTUAL NON-DISCLOSURE AGREEMENT
+        This Agreement is entered into by and between Acme Corp and John Doe.
+        
+        GOVERNING LAW
+        This Agreement shall be governed by the laws of India.
+        
+        INDEMNIFICATION
+        Each party shall indemnify and hold harmless the other party in its sole discretion.
+        The parties agree there is unlimited liability for breaches.
+        """
+        
+        success = analyze_contract_text(self.doc, contract_text)
+        self.assertTrue(success)
+        
+        # Verify contracting parties extracted (should find Acme Corp and/or John Doe)
+        self.doc.refresh_from_db()
+        self.assertIn("Acme Corp", self.doc.contracting_parties)
+        self.assertIn("John Doe", self.doc.contracting_parties)
+        
+        # Verify Governing Law isolated
+        gov_law_clauses = ExtractedClause.objects.filter(document=self.doc, clause_type="Governing Law")
+        self.assertEqual(gov_law_clauses.count(), 1)
+        self.assertIn("governed by the laws of India", gov_law_clauses.first().raw_text)
+        
+        # Verify risk flags created
+        # Should have flags for "sole discretion", "unlimited liability", "indemnify and hold harmless"
+        risk_flags = RiskFlag.objects.filter(clause__document=self.doc)
+        # Should have at least 3 risk flags
+        self.assertTrue(risk_flags.count() >= 3)
+        
+        # Check risk levels
+        high_risks = risk_flags.filter(risk_level="HIGH")
+        self.assertTrue(high_risks.exists()) # sole discretion, unlimited liability
+        
+        medium_risks = risk_flags.filter(risk_level="MEDIUM")
+        self.assertTrue(medium_risks.exists()) # indemnify and hold harmless
+
+
+
