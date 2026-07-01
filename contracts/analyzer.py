@@ -89,8 +89,8 @@ def analyze_contract_text(document, text):
     gov_keywords = ["governed by", "governing law", "jurisdiction", "exclusive jurisdiction", "laws of"]
     
     for i, p_text in enumerate(paragraphs):
-        # Skip short titles/headings
-        if len(p_text) < 30:
+        # Skip short titles/headings (less than 8 words)
+        if len(p_text.split()) < 8:
             continue
         # Scan for governing law keywords
         if any(keyword in p_text.lower() for keyword in gov_keywords):

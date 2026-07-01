@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contract Analysis - LegalTech</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #090d16;
+            color: #cbd5e1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: #111827;
+            padding: 1.25rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .btn-back {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #94a3b8;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            background-color: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-back:hover {
+            color: #38bdf8;
+            border-color: #38bdf8;
+            background-color: rgba(56, 189, 248, 0.05);
+            transform: translateX(-4px);
+        }
+
+        .contract-title-area {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .contract-icon {
+            color: #38bdf8;
+            font-size: 1.5rem;
+        }
+
+        .contract-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #f8fafc;
+        }
+
+        main {
+            flex: 1;
+            max-width: 1250px;
+            width: 100%;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* Summary Segment Cards */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .summary-card {
+            background-color: #111827;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card-label {
+            color: #64748b;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-value-large {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #f8fafc;
+            line-height: 1.4;
+        }
+
+        /* Risk Counters styling */
+        .risk-counters {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            height: 100%;
+        }
+
+        .counter-pill {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .counter-pill.high { background-color: rgba(239, 68, 68, 0.05); border-color: rgba(239, 68, 68, 0.15); color: #f87171; }
+        .counter-pill.medium { background-color: rgba(245, 158, 11, 0.05); border-color: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+        .counter-pill.low { background-color: rgba(59, 130, 246, 0.05); border-color: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+
+        .counter-number {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 0.1rem;
+        }
+
+        .counter-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Action Buttons */
+        .actions-area {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .btn-action {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-action.download {
+            background-color: #0284c7;
+            color: white;
+            border: none;
+        }
+
+        .btn-action.download:hover {
+            background-color: #0369a1;
+            transform: translateY(-2px);
+        }
+
+        .btn-action.delete {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .btn-action.delete:hover {
+            background-color: #ef4444;
+            color: white;
+            border-color: #ef4444;
+            transform: translateY(-2px);
+        }
+
+        /* Main Details Columns */
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.3fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        @media (max-width: 900px) {
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .details-card {
+            background-color: #111827;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        }
+
+        .details-card h2 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #f8fafc;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+            padding-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .details-card h2 i {
+            color: #38bdf8;
+        }
+
+        .clause-box {
+            background-color: rgba(15, 23, 42, 0.6);
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 1.25rem;
+            font-size: 0.95rem;
+            color: #cbd5e1;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Risks List styling */
+        .risk-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .risk-item {
+            border-left: 5px solid;
+            border-radius: 8px;
+            padding: 1.25rem;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .risk-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .risk-high {
+            background-color: rgba(239, 68, 68, 0.04);
+            border-color: #ef4444;
+            border-top: 1px solid rgba(239, 68, 68, 0.08);
+            border-right: 1px solid rgba(239, 68, 68, 0.08);
+            border-bottom: 1px solid rgba(239, 68, 68, 0.08);
+        }
+        .risk-high-title { color: #f87171; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; }
+
+        .risk-medium {
+            background-color: rgba(245, 158, 11, 0.04);
+            border-color: #f59e0b;
+            border-top: 1px solid rgba(245, 158, 11, 0.08);
+            border-right: 1px solid rgba(245, 158, 11, 0.08);
+            border-bottom: 1px solid rgba(245, 158, 11, 0.08);
+        }
+        .risk-medium-title { color: #fbbf24; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; }
+
+        .risk-low {
+            background-color: rgba(59, 130, 246, 0.04);
+            border-color: #3b82f6;
+            border-top: 1px solid rgba(59, 130, 246, 0.08);
+            border-right: 1px solid rgba(59, 130, 246, 0.08);
+            border-bottom: 1px solid rgba(59, 130, 246, 0.08);
+        }
+        .risk-low-title { color: #60a5fa; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; }
+
+        .risk-quote {
+            font-size: 0.85rem; 
+            color: #94a3b8; 
+            font-style: italic; 
+            margin: 0.75rem 0; 
+            background-color: rgba(15, 23, 42, 0.7); 
+            padding: 0.75rem 1rem; 
+            border-radius: 6px; 
+            border: 1px solid rgba(255, 255, 255, 0.05); 
+            line-height: 1.5;
+        }
+
+        .risk-reason {
+            color: #cbd5e1;
+            margin-bottom: 0.75rem;
+            line-height: 1.5;
+            font-size: 0.9rem;
+        }
+
+        .risk-fix {
+            font-size: 0.85rem;
+            color: #e2e8f0;
+            background-color: rgba(16, 185, 129, 0.04);
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            border: 1px solid rgba(16, 185, 129, 0.15);
+            line-height: 1.5;
+        }
+
+        .risk-fix-label {
+            font-weight: 700;
+            color: #34d399;
+            margin-right: 0.4rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .badge-status {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+        .status-pending { background-color: #78350f; color: #fbbf24; }
+        .status-processing { background-color: #1e3a8a; color: #60a5fa; }
+        .status-completed { background-color: #064e3b; color: #34d399; }
+        .status-failed { background-color: #7f1d1d; color: #f87171; }
+
+        .loader-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 6rem 1rem;
+            flex: 1;
+        }
+
+        footer {
+            background-color: #111827;
+            text-align: center;
+            padding: 1.25rem;
+            font-size: 0.8rem;
+            color: #64748b;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-left">
+            <a href="/" class="btn-back">
+                <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+            </a>
+            <div class="contract-title-area">
+                <i class="fa-solid fa-file-contract contract-icon"></i>
+                <span id="doc-title" class="contract-name">Loading Contract...</span>
+                <span id="status-badge-container"></span>
+            </div>
+        </div>
+        <div style="font-size: 0.85rem; color: #64748b; font-weight: 500;">
+            <i class="fa-solid fa-clock-rotate-left"></i> Real-time Parsing
+        </div>
+    </header>
+
+    <main id="main-content">
+        <div class="loader-container">
+            <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 3rem; color: #38bdf8; margin-bottom: 1.5rem;"></i>
+            <p style="color: #94a3b8; font-weight: 500; font-size: 1.05rem;">Running spaCy NLP Engine & Risk Assessment...</p>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 LegalTech Contract Parsing Engine. Built for Infotact Internship.</p>
+    </footer>
+
+    <script>
+        // Extract Document UUID from URL path: /contract/<uuid>/
+        const pathSegments = window.location.pathname.split('/');
+        const docId = pathSegments[pathSegments.length - 2];
+
+        async function loadContractDetails() {
+            const mainContent = document.getElementById('main-content');
+            try {
+                const response = await fetch(`/api/contracts/${docId}/`);
+                if (!response.ok) throw new Error();
+                const doc = await response.json();
+                
+                renderPage(doc);
+            } catch (err) {
+                mainContent.innerHTML = `
+                    <div class="loader-container" style="color: #f87171;">
+                        <i class="fa-solid fa-triangle-exclamation" style="font-size: 3.5rem; margin-bottom: 1.5rem;"></i>
+                        <p style="font-weight: 700; font-size: 1.2rem;">Failed to Load Analysis</p>
+                        <p style="font-size: 0.9rem; color: #64748b; margin-top: 0.5rem;">The requested document could not be found or processed correctly.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Helper to generate dynamic contract summary points
+        function generateExecutiveSummary(doc, govLawClause, allRiskFlags) {
+            const points = [];
+            
+            // 1. Contracting Parties
+            if (doc.contracting_parties && doc.contracting_parties !== "Unknown / Not detected") {
+                points.push(`<strong>Contracting Parties:</strong> Identified <strong>${doc.contracting_parties}</strong> entering into this agreement.`);
+            } else {
+                points.push(`<strong>Contracting Parties:</strong> Contracting parties were not clearly identified in the introductory text.`);
+            }
+
+            // 2. Governing Law
+            if (govLawClause) {
+                const text = govLawClause.raw_text;
+                let jurisdiction = "specified jurisdiction";
+                const commonSafeJurisdictions = ["India", "Delaware", "New York", "California", "United Kingdom", "England"];
+                for (const jurs of commonSafeJurisdictions) {
+                    if (text.toLowerCase().includes(jurs.toLowerCase())) {
+                        jurisdiction = jurs;
+                        break;
+                    }
+                }
+                points.push(`<strong>Jurisdiction & Law:</strong> Disputes will be governed by the laws of <strong>${jurisdiction}</strong>, as stated in the Governing Law clause.`);
+            } else {
+                points.push(`<strong>Jurisdiction & Law:</strong> <span style="color: #f87171;">Warning: No governing law clause was isolated.</span> Disputes may default to unspecified court jurisdictions.`);
+            }
+
+            // 3. Risk Exposure Analysis
+            const highCount = allRiskFlags.filter(f => f.risk_level === 'HIGH').length;
+            const mediumCount = allRiskFlags.filter(f => f.risk_level === 'MEDIUM').length;
+            
+            if (highCount > 0) {
+                const terms = [];
+                const rawLower = allRiskFlags.map(f => f.raw_text.toLowerCase()).join(' ');
+                if (rawLower.includes("sole discretion")) terms.push("sole discretion");
+                if (rawLower.includes("unlimited liability")) terms.push("unlimited liability");
+                const termStr = terms.length > 0 ? ` involving <strong>${terms.join(' & ')}</strong>` : '';
+                points.push(`<strong>Risk Exposure:</strong> <span style="color: #f87171; font-weight: 600;">Critical Attention Required.</span> Found <strong>${highCount} HIGH severity risk(s)</strong>${termStr} that expose the signing party to significant legal liabilities.`);
+            } else if (mediumCount > 0) {
+                points.push(`<strong>Risk Exposure:</strong> <span style="color: #fbbf24; font-weight: 600;">Moderate Liability.</span> Flagged <strong>${mediumCount} MEDIUM severity risk(s)</strong>. Minor reviews or negotiations are suggested to balance terms.`);
+            } else {
+                points.push(`<strong>Risk Exposure:</strong> <span style="color: #34d399; font-weight: 600;">Low Risk Profile.</span> No critical legal jargon or unlimited liability provisions were flagged.`);
+            }
+
+            // Compile HTML list
+            return `
+                <ul style="list-style-type: none; padding-left: 0;">
+                    ${points.map(pt => `
+                        <li style="margin-bottom: 0.75rem; padding-left: 1.5rem; position: relative;">
+                            <span style="position: absolute; left: 0; top: 0.2rem; color: #38bdf8; font-size: 0.8rem;"><i class="fa-solid fa-circle-check" style="color: #10b981;"></i></span>
+                            ${pt}
+                        </li>
+                    `).join('')}
+                </ul>
+            `;
+        }
+
+        function renderPage(doc) {
+            // Update Title & Badge
+            document.getElementById('doc-title').textContent = doc.original_name;
+            const statusLower = doc.status.toLowerCase();
+            document.getElementById('status-badge-container').innerHTML = `
+                <span class="badge-status status-${statusLower}">${doc.status}</span>
+            `;
+
+            // Separate Governing Law and general risks
+            const govLawClause = doc.clauses.find(c => c.clause_type.startsWith("Governing Law"));
+            
+            // Gather all risk flags
+            const allRiskFlags = [];
+            doc.clauses.forEach(clause => {
+                clause.risk_flags.forEach(flag => {
+                    allRiskFlags.push({
+                        ...flag,
+                        clause_type: clause.clause_type,
+                        raw_text: clause.raw_text
+                    });
+                });
+            });
+
+            // Sort risks by severity: HIGH first, then MEDIUM, then LOW
+            const severityPriority = { 'HIGH': 1, 'MEDIUM': 2, 'LOW': 3 };
+            allRiskFlags.sort((a, b) => {
+                return (severityPriority[a.risk_level] || 99) - (severityPriority[b.risk_level] || 99);
+            });
+
+            // Calculate Counts
+            const highCount = allRiskFlags.filter(f => f.risk_level === 'HIGH').length;
+            const mediumCount = allRiskFlags.filter(f => f.risk_level === 'MEDIUM').length;
+            const lowCount = allRiskFlags.filter(f => f.risk_level === 'LOW').length;
+
+            const mainContent = document.getElementById('main-content');
+            mainContent.innerHTML = `
+                <!-- Summary segment -->
+                <section class="summary-grid">
+                    <!-- Parties Card -->
+                    <div class="summary-card">
+                        <div class="card-label">
+                            <i class="fa-solid fa-users"></i> Contracting Parties (NER)
+                        </div>
+                        <div class="card-value-large" style="color: #38bdf8; font-family: monospace;">
+                            ${doc.contracting_parties || 'None Detected'}
+                        </div>
+                    </div>
+
+                    <!-- Risk Counter Card -->
+                    <div class="summary-card">
+                        <div class="card-label">
+                            <i class="fa-solid fa-triangle-exclamation"></i> Risk Summary
+                        </div>
+                        <div class="risk-counters">
+                            <div class="counter-pill high">
+                                <span class="counter-number">${highCount}</span>
+                                <span class="counter-label">High</span>
+                            </div>
+                            <div class="counter-pill medium">
+                                <span class="counter-number">${mediumCount}</span>
+                                <span class="counter-label">Medium</span>
+                            </div>
+                            <div class="counter-pill low">
+                                <span class="counter-number">${lowCount}</span>
+                                <span class="counter-label">Low</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Card -->
+                    <div class="summary-card">
+                        <div class="card-label">
+                            <i class="fa-solid fa-gear"></i> Actions
+                        </div>
+                        <div class="actions-area">
+                            <a href="/api/contracts/${doc.id}/download/" class="btn-action download">
+                                <i class="fa-solid fa-download"></i> Download ZIP
+                            </a>
+                            <button onclick="deleteContract('${doc.id}')" class="btn-action delete">
+                                <i class="fa-solid fa-trash-can"></i> Delete File
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Executive Analysis Summary -->
+                <section class="details-card" style="background: linear-gradient(135deg, rgba(17, 24, 39, 0.4), rgba(15, 23, 42, 0.4)); border-color: rgba(56, 189, 248, 0.15);">
+                    <h2><i class="fa-solid fa-file-invoice"></i> Executive Summary</h2>
+                    <div id="executive-summary-content" style="line-height: 1.7; font-size: 0.95rem; color: #cbd5e1;">
+                        ${generateExecutiveSummary(doc, govLawClause, allRiskFlags)}
+                    </div>
+                </section>
+
+                <!-- Detailed Analysis Grid -->
+                <section class="details-grid">
+                    <!-- Left Column: Governing Law -->
+                    <div class="details-card">
+                        <h2><i class="fa-solid fa-gavel"></i> Governing Law & Jurisdiction</h2>
+                        ${govLawClause ? `
+                            <div class="clause-box" style="${govLawClause.risk_flags.length > 0 ? 'border-color: #f59e0b;' : ''}">
+                                ${govLawClause.raw_text}
+                            </div>
+                            ${govLawClause.risk_flags.map(flag => `
+                                <div class="risk-item risk-low" style="margin-top: 1rem;">
+                                    <div class="risk-low-title">
+                                        <i class="fa-solid fa-circle-info"></i> Jurisdiction Flag
+                                    </div>
+                                    <div class="risk-reason">${flag.reason}</div>
+                                    <div class="risk-fix">
+                                        <span class="risk-fix-label">
+                                            <i class="fa-solid fa-check-double"></i> Suggested Fix:
+                                        </span>
+                                        ${flag.suggested_fix}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        ` : `
+                            <div class="clause-box" style="border-color: #ef4444; color: #f87171; font-weight: 500;">
+                                No governing law or jurisdiction clause detected.
+                            </div>
+                        `}
+                    </div>
+
+                    <!-- Right Column: Flagged Risks -->
+                    <div class="details-card">
+                        <h2><i class="fa-solid fa-shield-halved"></i> Flagged Legal Risks (${allRiskFlags.length})</h2>
+                        ${allRiskFlags.length === 0 ? `
+                            <div style="background-color: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 8px; padding: 3rem 1.5rem; text-align: center; color: #34d399;">
+                                <i class="fa-solid fa-circle-check" style="font-size: 2.5rem; margin-bottom: 1rem; color: #10b981;"></i>
+                                <p style="font-weight: 600; font-size: 1.05rem;">No dangerous jargon detected.</p>
+                                <p style="font-size: 0.85rem; margin-top: 0.4rem; color: #64748b;">This contract does not seem to contain standard risky legal clauses.</p>
+                            </div>
+                        ` : `
+                            <div class="risk-list">
+                                ${allRiskFlags.map(flag => {
+                                    const level = flag.risk_level.toLowerCase();
+                                    const icon = level === 'high' ? 'fa-radiation' : 'fa-triangle-exclamation';
+                                    return `
+                                        <div class="risk-item risk-${level}">
+                                            <div class="risk-${level}-title">
+                                                <i class="fa-solid ${icon}"></i> ${flag.risk_level} Severity Risk
+                                            </div>
+                                            <div class="risk-quote">
+                                                "${flag.raw_text}"
+                                            </div>
+                                            <div class="risk-reason">${flag.reason}</div>
+                                            <div class="risk-fix">
+                                                <span class="risk-fix-label">
+                                                    <i class="fa-solid fa-check-double"></i> Suggested Fix:
+                                                </span>
+                                                ${flag.suggested_fix}
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        `}
+                    </div>
+                </section>
+            `;
+        }
+
+        async function deleteContract(docId) {
+            if (!confirm("Are you sure you want to delete this contract? This will remove all files from disk.")) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/contracts/${docId}/`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    alert("Contract deleted successfully!");
+                    window.location.href = "/";
+                } else {
+                    alert("Failed to delete contract.");
+                }
+            } catch (err) {
+                alert("Network error occurred during deletion.");
+            }
+        }
+
+        // Run
+        loadContractDetails();
+    </script>
+</body>
+</html>

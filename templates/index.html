@@ -18,8 +18,8 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0f172a;
-            color: #e2e8f0;
+            background-color: #090d16;
+            color: #cbd5e1;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -54,13 +54,13 @@
 
         main {
             flex: 1;
-            max-width: 1200px;
+            max-width: 1250px;
             width: 100%;
             margin: 2rem auto;
-            padding: 0 1rem;
+            padding: 0 1.5rem;
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
+            grid-template-columns: 1fr 1.3fr;
+            gap: 2.5rem;
         }
 
         @media (max-width: 768px) {
@@ -70,10 +70,11 @@
         }
 
         .card {
-            background-color: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 8px;
-            padding: 1.5rem;
+            background-color: #111827;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
         }
 
         .card h2 {
@@ -282,146 +283,243 @@
 
         /* Analysis styles */
         .analysis-placeholder {
-            border: 1px dashed #334155;
-            border-radius: 6px;
-            background-color: #0f172a;
+            border: 2px dashed #334155;
+            border-radius: 12px;
+            background-color: rgba(15, 23, 42, 0.4);
+            transition: border-color 0.3s ease;
+        }
+
+        .analysis-placeholder:hover {
+            border-color: #38bdf8;
         }
 
         .analysis-meta {
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #334155;
+            margin-bottom: 1.75rem;
+            padding: 1.25rem;
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.4), rgba(15, 23, 42, 0.4));
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
         }
 
         .meta-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 0.5rem;
+            align-items: center;
+            margin-bottom: 0.75rem;
             font-size: 0.9rem;
-            gap: 1rem;
+            gap: 1.5rem;
+        }
+        
+        .meta-row:last-child {
+            margin-bottom: 0;
+            padding-top: 0.75rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .meta-label {
-            color: #64748b;
+            color: #94a3b8;
             font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .meta-value {
             color: #f8fafc;
             font-weight: 600;
             text-align: right;
-            max-width: 250px;
+            max-width: 60%;
         }
 
         .analysis-section {
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
         }
 
         .analysis-section-title {
-            font-size: 0.95rem;
-            font-weight: 600;
+            font-size: 0.9rem;
+            font-weight: 700;
             color: #38bdf8;
-            margin-bottom: 0.75rem;
+            margin-bottom: 1rem;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.08em;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.6rem;
+            border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+            padding-bottom: 0.5rem;
         }
 
         .clause-box {
-            background-color: #0f172a;
+            background-color: rgba(15, 23, 42, 0.6);
             border: 1px solid #334155;
-            border-radius: 6px;
-            padding: 1rem;
-            font-size: 0.9rem;
+            border-radius: 8px;
+            padding: 1.25rem;
+            font-size: 0.925rem;
             color: #cbd5e1;
-            line-height: 1.5;
-            max-height: 150px;
+            line-height: 1.6;
+            max-height: 180px;
             overflow-y: auto;
             white-space: pre-wrap;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         .risk-list {
             display: flex;
             flex-direction: column;
-            gap: 0.75rem;
-            max-height: 350px;
+            gap: 1rem;
+            max-height: 550px;
             overflow-y: auto;
-            padding-right: 0.25rem;
+            padding-right: 0.75rem;
         }
 
+        /* Custom Scrollbar for risk-list, clause-box and doc-list */
+        .risk-list::-webkit-scrollbar,
+        .clause-box::-webkit-scrollbar,
+        .doc-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .risk-list::-webkit-scrollbar-track,
+        .clause-box::-webkit-scrollbar-track,
+        .doc-list::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.3);
+            border-radius: 8px;
+        }
+
+        .risk-list::-webkit-scrollbar-thumb,
+        .clause-box::-webkit-scrollbar-thumb,
+        .doc-list::-webkit-scrollbar-thumb {
+            background: rgba(56, 189, 248, 0.25);
+            border-radius: 8px;
+        }
+
+        .risk-list::-webkit-scrollbar-thumb:hover,
+        .clause-box::-webkit-scrollbar-thumb:hover,
+        .doc-list::-webkit-scrollbar-thumb:hover {
+            background: rgba(56, 189, 248, 0.5);
+        }
+
+        /* Modernized Risk Cards */
         .risk-item {
-            border-left: 4px solid;
-            border-radius: 0 6px 6px 0;
-            padding: 0.75rem 1rem;
+            border-left: 5px solid;
+            border-radius: 8px;
+            padding: 1.25rem;
             font-size: 0.9rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .risk-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
 
         .risk-high {
-            background-color: rgba(239, 68, 68, 0.08);
-            border-left-color: #ef4444;
-            border-top: 1px solid rgba(239, 68, 68, 0.1);
-            border-right: 1px solid rgba(239, 68, 68, 0.1);
-            border-bottom: 1px solid rgba(239, 68, 68, 0.1);
+            background-color: rgba(239, 68, 68, 0.04);
+            border-color: #ef4444;
+            border-top: 1px solid rgba(239, 68, 68, 0.08);
+            border-right: 1px solid rgba(239, 68, 68, 0.08);
+            border-bottom: 1px solid rgba(239, 68, 68, 0.08);
         }
-        .risk-high-title { color: #f87171; font-weight: 600; display: flex; align-items: center; gap: 0.4rem; }
+        .risk-high-title { 
+            color: #f87171; 
+            font-weight: 700; 
+            display: flex; 
+            align-items: center; 
+            gap: 0.5rem;
+            font-size: 0.95rem;
+        }
 
         .risk-medium {
-            background-color: rgba(245, 158, 11, 0.08);
-            border-left-color: #f59e0b;
-            border-top: 1px solid rgba(245, 158, 11, 0.1);
-            border-right: 1px solid rgba(245, 158, 11, 0.1);
-            border-bottom: 1px solid rgba(245, 158, 11, 0.1);
+            background-color: rgba(245, 158, 11, 0.04);
+            border-color: #f59e0b;
+            border-top: 1px solid rgba(245, 158, 11, 0.08);
+            border-right: 1px solid rgba(245, 158, 11, 0.08);
+            border-bottom: 1px solid rgba(245, 158, 11, 0.08);
         }
-        .risk-medium-title { color: #fbbf24; font-weight: 600; display: flex; align-items: center; gap: 0.4rem; }
+        .risk-medium-title { 
+            color: #fbbf24; 
+            font-weight: 700; 
+            display: flex; 
+            align-items: center; 
+            gap: 0.5rem;
+            font-size: 0.95rem;
+        }
 
         .risk-low {
-            background-color: rgba(59, 130, 246, 0.08);
-            border-left-color: #3b82f6;
-            border-top: 1px solid rgba(59, 130, 246, 0.1);
-            border-right: 1px solid rgba(59, 130, 246, 0.1);
-            border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+            background-color: rgba(59, 130, 246, 0.04);
+            border-color: #3b82f6;
+            border-top: 1px solid rgba(59, 130, 246, 0.08);
+            border-right: 1px solid rgba(59, 130, 246, 0.08);
+            border-bottom: 1px solid rgba(59, 130, 246, 0.08);
         }
-        .risk-low-title { color: #60a5fa; font-weight: 600; display: flex; align-items: center; gap: 0.4rem; }
+        .risk-low-title { 
+            color: #60a5fa; 
+            font-weight: 700; 
+            display: flex; 
+            align-items: center; 
+            gap: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .risk-quote {
+            font-size: 0.85rem; 
+            color: #94a3b8; 
+            font-style: italic; 
+            margin: 0.75rem 0; 
+            background-color: rgba(15, 23, 42, 0.7); 
+            padding: 0.75rem 1rem; 
+            border-radius: 6px; 
+            border: 1px solid rgba(255, 255, 255, 0.05); 
+            max-height: 100px; 
+            overflow-y: auto; 
+            line-height: 1.5;
+        }
 
         .risk-reason {
-            color: #e2e8f0;
-            margin-top: 0.4rem;
-            margin-bottom: 0.5rem;
-            line-height: 1.4;
+            color: #cbd5e1;
+            margin-bottom: 0.75rem;
+            line-height: 1.5;
+            font-size: 0.9rem;
         }
 
         .risk-fix {
-            font-size: 0.825rem;
-            color: #cbd5e1;
-            background-color: rgba(15, 23, 42, 0.6);
-            padding: 0.5rem 0.75rem;
-            border-radius: 4px;
-            border: 1px solid #334155;
-            line-height: 1.4;
+            font-size: 0.85rem;
+            color: #e2e8f0;
+            background-color: rgba(16, 185, 129, 0.04);
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            border: 1px solid rgba(16, 185, 129, 0.15);
+            line-height: 1.5;
         }
 
         .risk-fix-label {
-            font-weight: 600;
-            color: #10b981;
-            margin-right: 0.35rem;
+            font-weight: 700;
+            color: #34d399;
+            margin-right: 0.4rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
         }
 
         .doc-item {
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            background-color: rgba(15, 23, 42, 0.3);
         }
 
         .doc-item:hover {
             border-color: #38bdf8;
-            background-color: #1e293b;
+            background-color: rgba(30, 41, 59, 0.5);
+            transform: translateX(4px);
         }
 
         .doc-item.active {
             border-color: #38bdf8;
-            background-color: #1e293b;
-            box-shadow: 0 0 12px rgba(56, 189, 248, 0.12);
+            background-color: rgba(30, 41, 59, 0.8);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.15);
+            transform: translateX(6px);
         }
 
         footer {
@@ -446,53 +544,34 @@
     </header>
 
     <main>
-        <!-- Left Column: Upload & Registry -->
-        <div style="display: flex; flex-direction: column; gap: 2rem;">
-            <!-- Document Upload Box -->
-            <section class="card">
-                <h2><i class="fa-solid fa-file-arrow-up"></i> Upload Document</h2>
-                <p class="card-desc">Supported file formats: PDF, JPG, PNG, DOC, DOCX, TXT (Max 10MB)</p>
-                
-                <div class="file-upload-box" onclick="document.getElementById('file-input').click()">
-                    <i class="fa-solid fa-cloud-arrow-up"></i>
-                    <p>Click here to select a file</p>
-                    <input type="file" id="file-input" style="display: none;" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.txt">
-                </div>
-
-                <div id="file-info-container" class="selected-file-info" style="display: none;">
-                    <span id="selected-file-name">filename.pdf</span>
-                    <span style="color: #38bdf8; cursor: pointer;" onclick="clearSelectedFile(event)">Remove</span>
-                </div>
-
-                <button class="btn-upload" onclick="uploadFile()">Upload File</button>
-                
-                <div id="status-alert" class="status-alert"></div>
-            </section>
-
-            <!-- Document Registry -->
-            <section class="card">
-                <h2><i class="fa-solid fa-folder-open"></i> Uploaded Files</h2>
-                <p class="card-desc">List of all contracts uploaded in the system.</p>
-                
-                <div id="doc-list" class="doc-list">
-                    <div class="no-docs">Loading files...</div>
-                </div>
-            </section>
-        </div>
-
-        <!-- Right Column: Contract Analysis -->
-        <section class="card" id="analysis-panel" style="display: flex; flex-direction: column;">
-            <h2><i class="fa-solid fa-brain"></i> Contract Analysis</h2>
-            <p class="card-desc" id="analysis-subtitle">Select a contract from the list to analyze.</p>
+        <!-- Document Upload Box -->
+        <section class="card">
+            <h2><i class="fa-solid fa-file-arrow-up"></i> Upload Document</h2>
+            <p class="card-desc">Supported file formats: PDF, JPG, PNG, DOC, DOCX, TXT (Max 10MB)</p>
             
-            <div id="analysis-content" style="flex: 1; display: flex; flex-direction: column;">
-                <div class="analysis-placeholder" style="text-align: center; color: #64748b; padding: 4rem 1rem; border: 1px dashed #334155; border-radius: 6px; background-color: #0f172a; flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                    <i class="fa-solid fa-scale-unbalanced" style="font-size: 3.5rem; margin-bottom: 1.5rem; color: #334155;"></i>
-                    <p style="font-weight: 600; color: #94a3b8;">No contract selected</p>
-                    <p style="font-size: 0.8rem; margin-top: 0.5rem; max-width: 300px; line-height: 1.4;">
-                        Click on any contract from the list on the left to run spaCy NLP analysis and view risk scoring.
-                    </p>
-                </div>
+            <div class="file-upload-box" onclick="document.getElementById('file-input').click()">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <p>Click here to select a file</p>
+                <input type="file" id="file-input" style="display: none;" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.txt">
+            </div>
+
+            <div id="file-info-container" class="selected-file-info" style="display: none;">
+                <span id="selected-file-name">filename.pdf</span>
+                <span style="color: #38bdf8; cursor: pointer;" onclick="clearSelectedFile(event)">Remove</span>
+            </div>
+
+            <button class="btn-upload" onclick="uploadFile()">Upload File</button>
+            
+            <div id="status-alert" class="status-alert"></div>
+        </section>
+
+        <!-- Document Registry -->
+        <section class="card">
+            <h2><i class="fa-solid fa-folder-open"></i> Uploaded Files</h2>
+            <p class="card-desc">List of all contracts uploaded in the system.</p>
+            
+            <div id="doc-list" class="doc-list">
+                <div class="no-docs">Loading files...</div>
             </div>
         </section>
     </main>
@@ -580,11 +659,9 @@
             docListContainer.innerHTML = docs.map(doc => {
                 const typeDetails = getFileTypeDetails(doc.original_name);
                 const uploadDate = new Date(doc.uploaded_at).toLocaleString();
-                const statusLower = doc.status.toLowerCase();
-                const isActive = activeDocId === doc.id ? 'active' : '';
                 
                 return `
-                    <div class="doc-item ${isActive}" id="doc-${doc.id}" onclick="selectDocument('${doc.id}', event)">
+                    <div class="doc-item" id="doc-${doc.id}" onclick="viewAnalysis('${doc.id}')">
                         <div class="doc-info">
                             <div class="doc-icon" style="color: ${typeDetails.color}; background-color: ${typeDetails.bg};">
                                 <i class="fa-solid ${typeDetails.icon}"></i>
@@ -607,158 +684,9 @@
             }).join('');
         }
 
-        let activeDocId = null;
-
-        // Select a document to show its analysis
-        async function selectDocument(docId, event) {
-            // Remove active class from previous active item
-            const items = document.querySelectorAll('.doc-item');
-            items.forEach(item => item.classList.remove('active'));
-
-            // Add active class to clicked item
-            const activeItem = document.getElementById(`doc-${docId}`);
-            if (activeItem) {
-                activeItem.classList.add('active');
-            }
-
-            activeDocId = docId;
-            const contentContainer = document.getElementById('analysis-content');
-            const subtitle = document.getElementById('analysis-subtitle');
-
-            contentContainer.innerHTML = `
-                <div style="text-align: center; padding: 4rem 1rem;">
-                    <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 2.5rem; color: #38bdf8; margin-bottom: 1rem;"></i>
-                    <p style="color: #94a3b8; font-weight: 500;">Running spaCy NLP Analysis...</p>
-                </div>
-            `;
-
-            try {
-                const response = await fetch(`/api/contracts/${docId}/`);
-                if (!response.ok) throw new Error();
-                const doc = await response.json();
-                
-                subtitle.textContent = `Analysis results for ${doc.original_name}`;
-                renderAnalysis(doc);
-            } catch (err) {
-                contentContainer.innerHTML = `
-                    <div style="text-align: center; color: #f87171; padding: 4rem 1rem;">
-                        <i class="fa-solid fa-triangle-exclamation" style="font-size: 2.5rem; margin-bottom: 1rem;"></i>
-                        <p style="font-weight: 600;">Failed to load contract analysis.</p>
-                    </div>
-                `;
-            }
-        }
-
-        // Render NLP Analysis Results
-        function renderAnalysis(doc) {
-            const contentContainer = document.getElementById('analysis-content');
-            
-            // Separate Governing Law clause from other clauses
-            const govLawClause = doc.clauses.find(c => c.clause_type.startsWith("Governing Law"));
-            
-            // Gather all risk flags from all clauses
-            const allRiskFlags = [];
-            doc.clauses.forEach(clause => {
-                clause.risk_flags.forEach(flag => {
-                    allRiskFlags.push({
-                        ...flag,
-                        clause_type: clause.clause_type,
-                        raw_text: clause.raw_text
-                    });
-                });
-            });
-
-            // Status Badge
-            const statusLower = doc.status.toLowerCase();
-            let statusBadge = `<span class="badge-status status-${statusLower}">${doc.status}</span>`;
-
-            // HTML compilation
-            let html = `
-                <div class="analysis-meta">
-                    <div class="meta-row">
-                        <span class="meta-label">Contract Status</span>
-                        <span class="meta-value">${statusBadge}</span>
-                    </div>
-                    <div class="meta-row">
-                        <span class="meta-label">Contracting Parties (NER)</span>
-                        <span class="meta-value" style="color: #38bdf8; font-size: 0.95rem;">${doc.contracting_parties || 'None detected'}</span>
-                    </div>
-                </div>
-            `;
-
-            // Governing Law Section
-            if (govLawClause) {
-                const hasGovLawRisk = govLawClause.risk_flags.length > 0;
-                const borderStyle = hasGovLawRisk ? 'border-color: #f59e0b;' : '';
-                html += `
-                    <div class="analysis-section">
-                        <div class="analysis-section-title">
-                            <i class="fa-solid fa-gavel"></i> Governing Law & Jurisdiction
-                        </div>
-                        <div class="clause-box" style="${borderStyle}">
-                            ${govLawClause.raw_text}
-                        </div>
-                        ${govLawClause.risk_flags.map(flag => `
-                            <div class="risk-item risk-low" style="margin-top: 0.5rem;">
-                                <div class="risk-low-title"><i class="fa-solid fa-circle-info"></i> Jurisdiction Flag</div>
-                                <div class="risk-reason">${flag.reason}</div>
-                                <div class="risk-fix"><span class="risk-fix-label">Suggested Fix:</span>${flag.suggested_fix}</div>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-            } else {
-                html += `
-                    <div class="analysis-section">
-                        <div class="analysis-section-title" style="color: #ef4444;">
-                            <i class="fa-solid fa-gavel"></i> Governing Law & Jurisdiction
-                        </div>
-                        <div class="clause-box" style="border-color: #ef4444; color: #f87171; font-weight: 500;">
-                            No governing law or jurisdiction clause detected.
-                        </div>
-                    </div>
-                `;
-            }
-
-            // Risk Scoring & Flagged Jargon Section
-            html += `
-                <div class="analysis-section" style="margin-bottom: 0;">
-                    <div class="analysis-section-title">
-                        <i class="fa-solid fa-triangle-exclamation"></i> Flagged Risks (${allRiskFlags.length})
-                    </div>
-            `;
-
-            if (allRiskFlags.length === 0) {
-                html += `
-                    <div style="background-color: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 6px; padding: 1.5rem; text-align: center; color: #34d399;">
-                        <i class="fa-solid fa-circle-check" style="font-size: 2rem; margin-bottom: 0.75rem; color: #10b981;"></i>
-                        <p style="font-weight: 600;">No dangerous jargon detected.</p>
-                        <p style="font-size: 0.8rem; margin-top: 0.25rem; color: #64748b;">This contract does not seem to contain standard risky legal clauses.</p>
-                    </div>
-                `;
-            } else {
-                html += `<div class="risk-list">`;
-                allRiskFlags.forEach(flag => {
-                    const level = flag.risk_level.toLowerCase();
-                    const icon = level === 'high' ? 'fa-radiation' : 'fa-triangle-exclamation';
-                    html += `
-                        <div class="risk-item risk-${level}">
-                            <div class="risk-${level}-title">
-                                <i class="fa-solid ${icon}"></i> ${flag.risk_level} Severity Risk (Matched Jargon)
-                            </div>
-                            <div style="font-size: 0.8rem; color: #94a3b8; font-style: italic; margin-top: 0.4rem; margin-bottom: 0.4rem; background-color: rgba(15, 23, 42, 0.6); padding: 0.5rem 0.75rem; border-radius: 4px; border: 1px solid #334155; max-height: 80px; overflow-y: auto; line-height: 1.4;">
-                                "${flag.raw_text}"
-                            </div>
-                            <div class="risk-reason">${flag.reason}</div>
-                            <div class="risk-fix"><span class="risk-fix-label">Suggested Fix:</span>${flag.suggested_fix}</div>
-                        </div>
-                    `;
-                });
-                html += `</div>`;
-            }
-
-            html += `</div>`; // End of section
-            contentContainer.innerHTML = html;
+        // Redirect to full-screen analysis page
+        function viewAnalysis(docId) {
+            window.location.href = `/contract/${docId}/`;
         }
 
         // Delete document from REST API
@@ -776,19 +704,6 @@
                 
                 if (response.ok) {
                     showAlert("Document deleted successfully!", "success");
-                    if (activeDocId === docId) {
-                        activeDocId = null;
-                        document.getElementById('analysis-subtitle').textContent = "Select a contract from the list to analyze.";
-                        document.getElementById('analysis-content').innerHTML = `
-                            <div class="analysis-placeholder" style="text-align: center; color: #64748b; padding: 4rem 1rem; border: 1px dashed #334155; border-radius: 6px; background-color: #0f172a; flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                                <i class="fa-solid fa-scale-unbalanced" style="font-size: 3.5rem; margin-bottom: 1.5rem; color: #334155;"></i>
-                                <p style="font-weight: 600; color: #94a3b8;">No contract selected</p>
-                                <p style="font-size: 0.8rem; margin-top: 0.5rem; max-width: 300px; line-height: 1.4;">
-                                    Click on any contract from the list on the left to run spaCy NLP analysis and view risk scoring.
-                                </p>
-                            </div>
-                        `;
-                    }
                     loadDocuments(); // Refresh list
                 } else {
                     showAlert("Failed to delete document.", "error");
