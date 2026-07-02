@@ -94,11 +94,17 @@
         /* Summary Segment Cards */
         .summary-grid {
             display: grid;
-            grid-template-columns: 1.2fr 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
             gap: 1.5rem;
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
+            .summary-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
             .summary-grid {
                 grid-template-columns: 1fr;
             }
@@ -449,6 +455,13 @@
                 points.push(`<strong>Contracting Parties:</strong> Contracting parties were not clearly identified in the introductory text.`);
             }
 
+            // 1b. Contract Duration
+            if (doc.contract_duration && doc.contract_duration !== "Not specified") {
+                points.push(`<strong>Agreement Term:</strong> The contract states a defined term of <strong>${doc.contract_duration}</strong>.`);
+            } else {
+                points.push(`<strong>Agreement Term:</strong> No specific contract duration or end date was dynamically isolated from the text.`);
+            }
+
             // 2. Governing Law
             if (govLawClause) {
                 const text = govLawClause.raw_text;
@@ -540,6 +553,16 @@
                         </div>
                         <div class="card-value-large" style="color: #38bdf8; font-family: monospace;">
                             ${doc.contracting_parties || 'None Detected'}
+                        </div>
+                    </div>
+
+                    <!-- Duration Card -->
+                    <div class="summary-card">
+                        <div class="card-label">
+                            <i class="fa-solid fa-hourglass-half"></i> Contract Duration
+                        </div>
+                        <div class="card-value-large" style="color: #34d399;">
+                            ${doc.contract_duration || 'Not specified'}
                         </div>
                     </div>
 

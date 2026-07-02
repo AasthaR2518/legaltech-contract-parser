@@ -17,6 +17,7 @@ class Document(models.Model):
     copied_file_path = models.CharField(max_length=500, null=True, blank=True)
     extracted_text_path = models.CharField(max_length=500, null=True, blank=True)
     contracting_parties = models.TextField(null=True, blank=True)
+    contract_duration = models.CharField(max_length=255, null=True, blank=True)
 
     class Meta:
         ordering = ['-uploaded_at']

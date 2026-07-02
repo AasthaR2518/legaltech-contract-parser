@@ -1,4 +1,5 @@
 import os
+import re
 import spacy
 from .models import Document, ExtractedClause, RiskFlag
 
@@ -83,6 +84,27 @@ def analyze_contract_text(document, text):
 
     # Split text into paragraphs for clause and risk analysis
     paragraphs = [p.strip() for p in text.split('\n') if p.strip()]
+
+    # 1b. Extract Contract Duration (Term)
+    duration_found = False
+    duration_keywords = ["term of", "duration of", "shall continue", "remain in effect", "period of", "effective for"]
+    pattern = re.compile(
+        r'(\b\d+\b|\bone\b|\btwo\b|\bthree\b|\bfour\b|\bfive\b|\bsix\b|\bseven\b|\beight\b|\bnine\b|\bten\b)\s*\(?\s*\d*\s*\)?\s*(year|month)s?', 
+        re.IGNORECASE
+    )
+    
+    for p_text in paragraphs:
+        if any(kw in p_text.lower() for kw in duration_keywords):
+            match = pattern.search(p_text)
+            if match:
+                document.contract_duration = match.group(0).strip()
+                duration_found = True
+                break
+                
+    if not duration_found:
+        document.contract_duration = "Not specified"
+        
+    document.save()
 
     # 2. Isolate Governing Law / Jurisdiction Clause
     gov_law_found = False

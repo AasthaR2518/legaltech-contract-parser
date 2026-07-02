@@ -184,6 +184,9 @@ class DocumentAnalysisTests(TestCase):
         GOVERNING LAW
         This Agreement shall be governed by the laws of India.
         
+        TERM AND DURATION
+        This Agreement shall remain in effect for a period of two (2) years from the effective date.
+        
         INDEMNIFICATION
         Each party shall indemnify and hold harmless the other party in its sole discretion.
         The parties agree there is unlimited liability for breaches.
@@ -196,6 +199,9 @@ class DocumentAnalysisTests(TestCase):
         self.doc.refresh_from_db()
         self.assertIn("Acme Corp", self.doc.contracting_parties)
         self.assertIn("John Doe", self.doc.contracting_parties)
+        
+        # Verify contract duration extracted
+        self.assertEqual(self.doc.contract_duration, "two (2) years")
         
         # Verify Governing Law isolated
         gov_law_clauses = ExtractedClause.objects.filter(document=self.doc, clause_type="Governing Law")

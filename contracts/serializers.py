@@ -19,8 +19,8 @@ class ExtractedClauseSerializer(serializers.ModelSerializer):
 class DocumentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Document
-        fields = ['id', 'file', 'original_name', 'uploaded_at', 'status', 'contracting_parties']
-        read_only_fields = ['id', 'original_name', 'uploaded_at', 'status', 'contracting_parties']
+        fields = ['id', 'file', 'original_name', 'uploaded_at', 'status', 'contracting_parties', 'contract_duration']
+        read_only_fields = ['id', 'original_name', 'uploaded_at', 'status', 'contracting_parties', 'contract_duration']
 
 
 class DocumentDetailSerializer(serializers.ModelSerializer):
@@ -28,7 +28,7 @@ class DocumentDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Document
-        fields = ['id', 'file', 'original_name', 'uploaded_at', 'status', 'contracting_parties', 'clauses']
+        fields = ['id', 'file', 'original_name', 'uploaded_at', 'status', 'contracting_parties', 'contract_duration', 'clauses']
 
 
 class DocumentUploadSerializer(serializers.Serializer):
