@@ -24,6 +24,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/contracts/', include('contracts.urls')),
     path('contract/<uuid:pk>/', TemplateView.as_view(template_name='analysis.html'), name='contract-analysis-page'),
+    path('login/', TemplateView.as_view(template_name='login.html'), name='login-page'),
+    path('register/', TemplateView.as_view(template_name='register.html'), name='register-page'),
     path('', TemplateView.as_view(template_name='index.html'), name='home'),
 ]
 

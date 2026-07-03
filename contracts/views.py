@@ -3,9 +3,10 @@ import io
 import zipfile
 from django.http import HttpResponse
 from rest_framework import status
-from rest_framework.decorators import api_view, parser_classes
+from rest_framework.decorators import api_view, parser_classes, permission_classes
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.permissions import IsAuthenticated
 
 from .models import Document
 from .serializers import (
@@ -16,16 +17,20 @@ from .serializers import (
 
 @api_view(['POST'])
 @parser_classes([MultiPartParser, FormParser])
+@permission_classes([IsAuthenticated])
 def document_upload_view(request):
     serializer = DocumentUploadSerializer(data=request.data)
     if serializer.is_valid():
         uploaded_file = serializer.validated_data['file']
         
-        # Create the Document instance in the database
+        user_profile = request.user.userprofile
+        # Create the Document instance in the database linked to organization & user
         document = Document.objects.create(
             file=uploaded_file,
             original_name=uploaded_file.name,
-            status='PENDING'
+            status='PENDING',
+            organization=user_profile.organization,
+            uploaded_by=request.user
         )
 
         # Copy the uploaded file to the specific folder
@@ -46,13 +51,16 @@ def document_upload_view(request):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def document_list_view(request):
-    documents = Document.objects.all()
+    user_profile = request.user.userprofile
+    documents = Document.objects.filter(organization=user_profile.organization)
     serializer = DocumentSerializer(documents, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(['GET', 'DELETE'])
+@permission_classes([IsAuthenticated])
 def document_detail_view(request, pk):
     try:
         document = Document.objects.get(pk=pk)
@@ -60,6 +68,13 @@ def document_detail_view(request, pk):
         return Response(
             {"error": "Document not found."}, 
             status=status.HTTP_404_NOT_FOUND
+        )
+        
+    user_profile = request.user.userprofile
+    if document.organization != user_profile.organization:
+        return Response(
+            {"error": "Access denied. This document belongs to another organization workspace."},
+            status=status.HTTP_403_FORBIDDEN
         )
         
     if request.method == 'GET':
@@ -91,6 +106,7 @@ def document_detail_view(request, pk):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def document_download_zip_view(request, pk):
     try:
         document = Document.objects.get(pk=pk)
@@ -98,6 +114,13 @@ def document_download_zip_view(request, pk):
         return Response(
             {"error": "Document not found."}, 
             status=status.HTTP_404_NOT_FOUND
+        )
+
+    user_profile = request.user.userprofile
+    if document.organization != user_profile.organization:
+        return Response(
+            {"error": "Access denied. This document belongs to another organization workspace."},
+            status=status.HTTP_403_FORBIDDEN
         )
 
     # Gather files to package

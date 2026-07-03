@@ -1,13 +1,18 @@
 from django.test import TestCase
 from django.urls import reverse
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.test import APIClient
-from .models import Document
+from .models import Document, Organization, UserProfile
 
 class DocumentUploadTests(TestCase):
     def setUp(self):
         self.client = APIClient()
+        self.org = Organization.objects.create(name="TestOrg")
+        self.user = User.objects.create_user(username="testuser", password="password")
+        self.profile = UserProfile.objects.create(user=self.user, organization=self.org, role="ADMIN")
+        self.client.login(username="testuser", password="password")
         self.upload_url = reverse('document-upload')
 
     def test_upload_valid_pdf_success(self):
@@ -115,6 +120,10 @@ import tempfile
 class DocumentDownloadTests(TestCase):
     def setUp(self):
         self.client = APIClient()
+        self.org = Organization.objects.create(name="TestOrg")
+        self.user = User.objects.create_user(username="testuser", password="password")
+        self.profile = UserProfile.objects.create(user=self.user, organization=self.org, role="ADMIN")
+        self.client.login(username="testuser", password="password")
 
     def test_download_zip_package(self):
         # Create mock file contents
@@ -137,7 +146,9 @@ class DocumentDownloadTests(TestCase):
             original_name="test_contract.txt",
             copied_file_path=orig_file_path,
             extracted_text_path=txt_file_path,
-            status='COMPLETED'
+            status='COMPLETED',
+            organization=self.org,
+            uploaded_by=self.user
         )
 
         download_url = reverse('document-download-zip', kwargs={'pk': doc.id})
@@ -171,9 +182,11 @@ from .models import ExtractedClause, RiskFlag
 
 class DocumentAnalysisTests(TestCase):
     def setUp(self):
+        self.org = Organization.objects.create(name="TestOrg")
         self.doc = Document.objects.create(
             original_name="test_contract.txt",
-            status="PENDING"
+            status="PENDING",
+            organization=self.org
         )
 
     def test_analysis_flow(self):

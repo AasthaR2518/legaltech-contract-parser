@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Workspace - LegalTech</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #090d16;
+            color: #cbd5e1;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .auth-container {
+            background-color: #111827;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 2.5rem;
+            max-width: 520px;
+            width: 100%;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            color: #f8fafc;
+        }
+
+        .logo i {
+            color: #38bdf8;
+            font-size: 2rem;
+        }
+
+        .logo span {
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 1.25rem;
+            color: #f8fafc;
+            font-weight: 700;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #94a3b8;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            font-size: 1rem;
+        }
+
+        .input-wrapper input, .input-wrapper select {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.75rem;
+            background-color: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: #f8fafc;
+            font-size: 0.9rem;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .input-wrapper input:focus, .input-wrapper select:focus {
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+            background-color: #1e293b;
+        }
+
+        /* Toggle Actions styles */
+        .workspace-toggle {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            background-color: #0f172a;
+            color: #94a3b8;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            border-color: #38bdf8;
+            background-color: rgba(56, 189, 248, 0.08);
+            color: #38bdf8;
+        }
+
+        .btn-register {
+            width: 100%;
+            padding: 0.85rem;
+            background-color: #0284c7;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 1rem;
+        }
+
+        .btn-register:hover {
+            background-color: #0369a1;
+            transform: translateY(-1px);
+        }
+
+        .btn-register:active {
+            transform: translateY(0);
+        }
+
+        .alert-error {
+            background-color: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .footer-link {
+            text-align: center;
+            margin-top: 1.75rem;
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        .footer-link a {
+            color: #38bdf8;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .footer-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="auth-container">
+        <div class="logo">
+            <i class="fa-solid fa-scale-balanced"></i>
+            <span>LegalTech</span>
+        </div>
+        
+        <h2>Create Workspace Account</h2>
+
+        <div id="error-alert" class="alert-error">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span id="error-message">Error registering account.</span>
+        </div>
+
+        <form id="register-form" onsubmit="handleRegister(event)">
+            <!-- Username -->
+            <div class="form-group">
+                <label for="username">Username</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-user"></i>
+                    <input type="text" id="username" placeholder="Choose a unique username" required autocomplete="username">
+                </div>
+            </div>
+
+            <!-- Email -->
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-envelope"></i>
+                    <input type="email" id="email" placeholder="name@company.com" required autocomplete="email">
+                </div>
+            </div>
+
+            <!-- Phone Number -->
+            <div class="form-group">
+                <label for="phone">Phone Number (For OTP Verification)</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-phone"></i>
+                    <input type="tel" id="phone" placeholder="+91 99999 99999" required autocomplete="tel">
+                </div>
+            </div>
+
+            <!-- Passwords -->
+            <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                    <label for="password">Password</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" id="password" placeholder="••••••••" required autocomplete="new-password">
+                    </div>
+                </div>
+                <div>
+                    <label for="confirm_password">Confirm Password</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <input type="password" id="confirm_password" placeholder="••••••••" required autocomplete="new-password">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Workspace Action selector -->
+            <div class="form-group">
+                <label>Organization Workspace</label>
+                <div class="workspace-toggle">
+                    <div id="btn-toggle-create" class="toggle-btn active" onclick="setWorkspaceAction('create')">
+                        <i class="fa-solid fa-plus"></i> Create Workspace
+                    </div>
+                    <div id="btn-toggle-join" class="toggle-btn" onclick="setWorkspaceAction('join')">
+                        <i class="fa-solid fa-right-to-bracket"></i> Join Workspace
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dynamic Workspace Input: Create new -->
+            <div id="group-workspace-create" class="form-group">
+                <label for="org_name">New Organization Name</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-building"></i>
+                    <input type="text" id="org_name" placeholder="e.g. Acme Legal Corp">
+                </div>
+            </div>
+
+            <!-- Dynamic Workspace Input: Join existing -->
+            <div id="group-workspace-join" class="form-group" style="display: none;">
+                <label for="org_select">Select Existing Organization</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-list-check"></i>
+                    <select id="org_select">
+                        <option value="">-- Choose Organization --</option>
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-register">Register Account</button>
+        </form>
+
+        <div class="footer-link">
+            Already have a workspace account? <a href="/login/">Sign In</a>
+        </div>
+    </div>
+
+    <script>
+        let currentOrgAction = 'create'; // default action
+
+        // Handle workspace action toggle
+        function setWorkspaceAction(action) {
+            currentOrgAction = action;
+            const btnCreate = document.getElementById('btn-toggle-create');
+            const btnJoin = document.getElementById('btn-toggle-join');
+            const groupCreate = document.getElementById('group-workspace-create');
+            const groupJoin = document.getElementById('group-workspace-join');
+            const orgNameInput = document.getElementById('org_name');
+            const orgSelect = document.getElementById('org_select');
+
+            if (action === 'create') {
+                btnCreate.classList.add('active');
+                btnJoin.classList.remove('active');
+                groupCreate.style.display = 'block';
+                groupJoin.style.display = 'none';
+                orgNameInput.required = true;
+                orgSelect.required = false;
+            } else {
+                btnJoin.classList.add('active');
+                btnCreate.classList.remove('active');
+                groupJoin.style.display = 'block';
+                groupCreate.style.display = 'none';
+                orgSelect.required = true;
+                orgNameInput.required = false;
+                
+                // Fetch existing organizations list
+                loadExistingOrganizations();
+            }
+        }
+
+        // Set initial required attribute
+        document.getElementById('org_name').required = true;
+
+        // Fetch organizations from API
+        async function loadExistingOrganizations() {
+            const orgSelect = document.getElementById('org_select');
+            try {
+                const response = await fetch('/api/contracts/auth/organizations/');
+                if (response.ok) {
+                    const orgs = await response.json();
+                    
+                    // Reset dropdown options
+                    orgSelect.innerHTML = '<option value="">-- Choose Organization --</option>';
+                    orgs.forEach(org => {
+                        const opt = document.createElement('option');
+                        opt.value = org.id;
+                        opt.textContent = org.name;
+                        orgSelect.appendChild(opt);
+                    });
+                }
+            } catch (err) {
+                console.error("Failed to load organizations:", err);
+            }
+        }
+
+        // Form submission handler
+        async function handleRegister(e) {
+            e.preventDefault();
+            const errorAlert = document.getElementById('error-alert');
+            const errorMsg = document.getElementById('error-message');
+
+            // Hide alert initially
+            errorAlert.style.display = 'none';
+
+            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+            const orgName = document.getElementById('org_name').value.trim();
+            const orgId = document.getElementById('org_select').value;
+
+            if (password !== confirmPassword) {
+                errorMsg.textContent = "Passwords do not match.";
+                errorAlert.style.display = 'flex';
+                return;
+            }
+
+            const payload = {
+                username,
+                email,
+                phone_number: phone,
+                password,
+                confirm_password: confirmPassword,
+                org_action: currentOrgAction,
+                org_name: currentOrgAction === 'create' ? orgName : '',
+                org_id: currentOrgAction === 'join' ? orgId : ''
+            };
+
+            try {
+                // Get CSRF Token
+                const csrfToken = getCookie('csrftoken');
+
+                const response = await fetch('/api/contracts/auth/register/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Redirect to homepage dashboard
+                    window.location.href = '/';
+                } else {
+                    errorMsg.textContent = data.error || "Registration failed.";
+                    errorAlert.style.display = 'flex';
+                }
+            } catch (err) {
+                errorMsg.textContent = "A network error occurred. Please try again.";
+                errorAlert.style.display = 'flex';
+            }
+        }
+
+        // Helper to retrieve CSRF token cookie
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+</html>
