@@ -53,8 +53,7 @@ def document_upload_view(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def document_list_view(request):
-    user_profile = request.user.userprofile
-    documents = Document.objects.filter(organization=user_profile.organization)
+    documents = Document.objects.filter(uploaded_by=request.user)
     serializer = DocumentSerializer(documents, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -70,10 +69,9 @@ def document_detail_view(request, pk):
             status=status.HTTP_404_NOT_FOUND
         )
         
-    user_profile = request.user.userprofile
-    if document.organization != user_profile.organization:
+    if document.uploaded_by != request.user:
         return Response(
-            {"error": "Access denied. This document belongs to another organization workspace."},
+            {"error": "Access denied. You are not the owner of this document."},
             status=status.HTTP_403_FORBIDDEN
         )
         
@@ -116,10 +114,9 @@ def document_download_zip_view(request, pk):
             status=status.HTTP_404_NOT_FOUND
         )
 
-    user_profile = request.user.userprofile
-    if document.organization != user_profile.organization:
+    if document.uploaded_by != request.user:
         return Response(
-            {"error": "Access denied. This document belongs to another organization workspace."},
+            {"error": "Access denied. You are not the owner of this document."},
             status=status.HTTP_403_FORBIDDEN
         )
 

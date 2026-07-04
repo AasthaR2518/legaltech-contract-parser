@@ -550,26 +550,58 @@
     </header>
 
     <main>
-        <!-- Document Upload Box -->
-        <section class="card">
-            <h2><i class="fa-solid fa-file-arrow-up"></i> Upload Document</h2>
-            <p class="card-desc">Supported file formats: PDF, JPG, PNG, DOC, DOCX, TXT (Max 10MB)</p>
-            
-            <div class="file-upload-box" onclick="document.getElementById('file-input').click()">
-                <i class="fa-solid fa-cloud-arrow-up"></i>
-                <p>Click here to select a file</p>
-                <input type="file" id="file-input" style="display: none;" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.txt">
-            </div>
+        <!-- Left Column: Upload & Team Admin -->
+        <div style="display: flex; flex-direction: column; gap: 2rem;">
+            <!-- Document Upload Box -->
+            <section class="card">
+                <h2><i class="fa-solid fa-file-arrow-up"></i> Upload Document</h2>
+                <p class="card-desc">Supported file formats: PDF, JPG, PNG, DOC, DOCX, TXT (Max 10MB)</p>
+                
+                <div class="file-upload-box" onclick="document.getElementById('file-input').click()">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <p>Click here to select a file</p>
+                    <input type="file" id="file-input" style="display: none;" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.txt">
+                </div>
 
-            <div id="file-info-container" class="selected-file-info" style="display: none;">
-                <span id="selected-file-name">filename.pdf</span>
-                <span style="color: #38bdf8; cursor: pointer;" onclick="clearSelectedFile(event)">Remove</span>
-            </div>
+                <div id="file-info-container" class="selected-file-info" style="display: none;">
+                    <span id="selected-file-name">filename.pdf</span>
+                    <span style="color: #38bdf8; cursor: pointer;" onclick="clearSelectedFile(event)">Remove</span>
+                </div>
 
-            <button class="btn-upload" onclick="uploadFile()">Upload File</button>
-            
-            <div id="status-alert" class="status-alert"></div>
-        </section>
+                <button class="btn-upload" onclick="uploadFile()">Upload File</button>
+                
+                <div id="status-alert" class="status-alert"></div>
+            </section>
+
+            <!-- Team Workspace Management Panel (ADMIN Only) -->
+            <section class="card" id="team-admin-panel" style="display: none;">
+                <h2><i class="fa-solid fa-users-gear"></i> Team Workspace</h2>
+                <p class="card-desc">Add and view members in your organization workspace.</p>
+                
+                <!-- Members list -->
+                <div id="team-members-list" style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.75rem; max-height: 200px; overflow-y: auto; padding-right: 0.25rem;">
+                    <!-- Loaded dynamically -->
+                </div>
+
+                <!-- Add member form -->
+                <form id="team-create-user-form" onsubmit="handleCreateTeamUser(event)" style="margin-top: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 1.25rem; display: flex; flex-direction: column; gap: 0.85rem;">
+                    <h3 style="font-size: 0.85rem; color: #f8fafc; font-weight: 700;">Add Team Member</h3>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                        <input type="text" id="team_username" placeholder="Username" required style="padding: 0.5rem; background-color: #0f172a; border: 1px solid #334155; border-radius: 6px; color: white; font-size: 0.85rem; outline: none;">
+                        <input type="email" id="team_email" placeholder="Email" required style="padding: 0.5rem; background-color: #0f172a; border: 1px solid #334155; border-radius: 6px; color: white; font-size: 0.85rem; outline: none;">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                        <input type="tel" id="team_phone" placeholder="Phone Number" required style="padding: 0.5rem; background-color: #0f172a; border: 1px solid #334155; border-radius: 6px; color: white; font-size: 0.85rem; outline: none;">
+                        <input type="password" id="team_password" placeholder="Password" required style="padding: 0.5rem; background-color: #0f172a; border: 1px solid #334155; border-radius: 6px; color: white; font-size: 0.85rem; outline: none;">
+                    </div>
+                    
+                    <button type="submit" style="padding: 0.6rem; background-color: #0284c7; color: white; border: none; border-radius: 6px; font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: background-color 0.2s;">
+                        <i class="fa-solid fa-user-plus"></i> Add Member
+                    </button>
+                </form>
+            </section>
+        </div>
 
         <!-- Document Registry -->
         <section class="card">
@@ -807,9 +839,84 @@
                     const data = await response.json();
                     document.getElementById('org-workspace-badge').textContent = `${data.organization} Workspace`;
                     document.getElementById('user-welcome').innerHTML = `<i class="fa-solid fa-user-tie"></i> ${data.username} (${data.role})`;
+                    
+                    // Show team management panel ONLY if user is ADMIN
+                    if (data.role === 'ADMIN') {
+                        document.getElementById('team-admin-panel').style.display = 'block';
+                        loadTeamMembers();
+                    }
                 }
             } catch (err) {
                 console.error("Failed to load user profile:", err);
+            }
+        }
+
+        // Fetch and load team members
+        async function loadTeamMembers() {
+            const listContainer = document.getElementById('team-members-list');
+            try {
+                const response = await fetch('/api/contracts/auth/team/');
+                if (response.ok) {
+                    const members = await response.json();
+                    
+                    if (members.length === 0) {
+                        listContainer.innerHTML = '<div style="font-size: 0.8rem; color: #64748b;">No other team members.</div>';
+                        return;
+                    }
+                    
+                    listContainer.innerHTML = members.map(m => `
+                        <div style="display: flex; justify-content: space-between; align-items: center; background-color: rgba(15, 23, 42, 0.4); padding: 0.6rem 0.85rem; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.03);">
+                            <div>
+                                <div style="font-size: 0.85rem; font-weight: 600; color: #f8fafc;">${m.username}</div>
+                                <div style="font-size: 0.75rem; color: #64748b;">${m.email} | ${m.phone_number}</div>
+                            </div>
+                            <span style="font-size: 0.7rem; font-weight: 700; background-color: ${m.role === 'ADMIN' ? 'rgba(56, 189, 248, 0.15)' : 'rgba(148, 163, 184, 0.15)'}; color: ${m.role === 'ADMIN' ? '#38bdf8' : '#94a3b8'}; padding: 0.15rem 0.4rem; border-radius: 4px; text-transform: uppercase;">${m.role}</span>
+                        </div>
+                    `).join('');
+                }
+            } catch (err) {
+                console.error("Failed to load team members:", err);
+            }
+        }
+
+        // Add team member form handler
+        async function handleCreateTeamUser(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('team_username').value.trim();
+            const email = document.getElementById('team_email').value.trim();
+            const phone = document.getElementById('team_phone').value.trim();
+            const password = document.getElementById('team_password').value;
+
+            const payload = {
+                username,
+                email,
+                phone_number: phone,
+                password
+            };
+
+            try {
+                const csrfToken = getCookie('csrftoken');
+                const response = await fetch('/api/contracts/auth/team/create-user/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert(data.message || "Team user successfully added!");
+                    document.getElementById('team-create-user-form').reset();
+                    loadTeamMembers();
+                } else {
+                    alert(data.error || "Failed to add team member.");
+                }
+            } catch (err) {
+                alert("Network error occurred.");
             }
         }
 
