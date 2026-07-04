@@ -198,3 +198,18 @@ def create_team_user(request):
     )
 
     return JsonResponse({"message": f"User '{username}' successfully added to team '{admin_profile.organization.name}'."}, status=201)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_profile(request):
+    """
+    Fetch details of the currently logged-in user profile.
+    """
+    profile = request.user.userprofile
+    return JsonResponse({
+        "username": request.user.username,
+        "email": request.user.email,
+        "organization": profile.organization.name,
+        "role": profile.role
+    })

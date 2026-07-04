@@ -539,8 +539,14 @@
         <div class="logo">
             <i class="fa-solid fa-scale-balanced"></i>
             <span>LegalTech Parser</span>
+            <span id="org-workspace-badge" style="font-size: 0.8rem; background-color: rgba(56, 189, 248, 0.15); color: #38bdf8; padding: 0.25rem 0.6rem; border-radius: 4px; font-weight: 600; margin-left: 0.5rem; text-transform: uppercase;">Workspace</span>
         </div>
-       
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <span id="user-welcome" style="font-size: 0.9rem; color: #94a3b8; font-weight: 500;">Welcome</span>
+            <button onclick="handleLogout()" style="background-color: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: #f87171; padding: 0.4rem 0.8rem; border-radius: 6px; font-weight: 600; font-size: 0.8rem; cursor: pointer; transition: all 0.2s ease;">
+                <i class="fa-solid fa-power-off"></i> Logout
+            </button>
+        </div>
     </header>
 
     <main>
@@ -702,8 +708,12 @@
             }
 
             try {
+                const csrfToken = getCookie('csrftoken');
                 const response = await fetch(`/api/contracts/${docId}/`, {
-                    method: 'DELETE'
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': csrfToken
+                    }
                 });
                 
                 if (response.ok) {
@@ -747,8 +757,12 @@
             statusAlert.style.color = '#60a5fa';
 
             try {
+                const csrfToken = getCookie('csrftoken');
                 const response = await fetch('/api/contracts/upload/', {
                     method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken
+                    },
                     body: formData
                 });
                 
@@ -769,7 +783,59 @@
             }
         }
 
+        // Retrieve CSRF cookie token helper
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Fetch and load organization workspace name
+        async function loadUserProfile() {
+            try {
+                const response = await fetch('/api/contracts/auth/profile/');
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('org-workspace-badge').textContent = `${data.organization} Workspace`;
+                    document.getElementById('user-welcome').innerHTML = `<i class="fa-solid fa-user-tie"></i> ${data.username} (${data.role})`;
+                }
+            } catch (err) {
+                console.error("Failed to load user profile:", err);
+            }
+        }
+
+        // Secure B2B logout session handler
+        async function handleLogout() {
+            if (!confirm("Are you sure you want to log out from this workspace?")) return;
+            try {
+                const csrfToken = getCookie('csrftoken');
+                const response = await fetch('/api/contracts/auth/logout/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken
+                    }
+                });
+                if (response.ok) {
+                    window.location.href = '/login/';
+                } else {
+                    alert("Logout failed.");
+                }
+            } catch (err) {
+                alert("Network error occurred during logout.");
+            }
+        }
+
         // Initial Load
+        loadUserProfile();
         loadDocuments();
     </script>
 </body>

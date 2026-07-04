@@ -14,6 +14,7 @@ urlpatterns = [
     path('auth/register/', auth_views.register_user, name='auth-register'),
     path('auth/login/', auth_views.login_user, name='auth-login'),
     path('auth/logout/', auth_views.logout_user, name='auth-logout'),
+    path('auth/profile/', auth_views.get_user_profile, name='auth-profile'),
     path('auth/team/', auth_views.get_team_members, name='auth-team-members'),
     path('auth/team/create-user/', auth_views.create_team_user, name='auth-create-team-user'),
 ]

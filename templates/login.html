@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workspace Login - LegalTech</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #090d16;
+            color: #cbd5e1;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .auth-container {
+            background-color: #111827;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 2.5rem;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            color: #f8fafc;
+        }
+
+        .logo i {
+            color: #38bdf8;
+            font-size: 2rem;
+        }
+
+        .logo span {
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 1.25rem;
+            color: #f8fafc;
+            font-weight: 700;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #94a3b8;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            font-size: 1rem;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.75rem;
+            background-color: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: #f8fafc;
+            font-size: 0.9rem;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .input-wrapper input:focus {
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+            background-color: #1e293b;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 0.85rem;
+            background-color: #0284c7;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-submit:hover {
+            background-color: #0369a1;
+            transform: translateY(-1px);
+        }
+
+        .alert-message {
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .alert-error {
+            background-color: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #f87171;
+        }
+
+        .alert-success {
+            background-color: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            color: #34d399;
+        }
+
+        /* Slide Transition for Step 2 fields */
+        .reveal-group {
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
+        }
+
+        .reveal-group.visible {
+            max-height: 350px;
+            opacity: 1;
+            margin-top: 1.25rem;
+        }
+
+        .footer-link {
+            text-align: center;
+            margin-top: 1.75rem;
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        .footer-link a {
+            color: #38bdf8;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .footer-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="auth-container">
+        <div class="logo">
+            <i class="fa-solid fa-scale-balanced"></i>
+            <span>LegalTech</span>
+        </div>
+        
+        <h2>Sign In to Workspace</h2>
+
+        <div id="status-alert" class="alert-message alert-error">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span id="status-text">Error message here.</span>
+        </div>
+
+        <form id="login-form" onsubmit="handleFormSubmit(event)">
+            <!-- Step 1: Organization Workspace Name -->
+            <div class="form-group">
+                <label for="org_name">Organization Workspace Name</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-building"></i>
+                    <input type="text" id="org_name" placeholder="e.g. TechGlobal" required autocomplete="off">
+                </div>
+            </div>
+
+            <!-- Step 2: Username & Password (initially hidden) -->
+            <div id="step-2-fields" class="reveal-group">
+                <!-- Username -->
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-user"></i>
+                        <input type="text" id="username" placeholder="Enter your username" autocomplete="username">
+                    </div>
+                </div>
+
+                <!-- Password -->
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" id="btn-submit" class="btn-submit">
+                <span>Continue</span> <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </form>
+
+        <div class="footer-link">
+            Need a workspace? <a href="/register/">Register Team</a>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            const alertBox = document.getElementById('status-alert');
+            const alertText = document.getElementById('status-text');
+            const orgInput = document.getElementById('org_name');
+            const btnSubmit = document.getElementById('btn-submit');
+            
+            // Clear alert
+            alertBox.style.display = 'none';
+
+            if (currentStep === 1) {
+                // Perform Step 1 Workspace Validation Check
+                const orgName = orgInput.value.trim();
+                if (!orgName) return;
+
+                btnSubmit.disabled = true;
+                btnSubmit.innerHTML = `Checking workspace... <i class="fa-solid fa-circle-notch fa-spin"></i>`;
+
+                try {
+                    const response = await fetch(`/api/contracts/auth/check-organization/?name=${encodeURIComponent(orgName)}`);
+                    const data = await response.json();
+
+                    if (response.ok && data.exists) {
+                        // Organization is valid! Reveal Step 2 credentials block
+                        currentStep = 2;
+                        
+                        // Style modifications
+                        orgInput.readOnly = true;
+                        orgInput.style.backgroundColor = '#1e293b';
+                        orgInput.style.color = '#94a3b8';
+                        orgInput.style.borderColor = '#1e3a8a';
+                        
+                        document.getElementById('step-2-fields').classList.add('visible');
+                        
+                        // Set fields as required now
+                        document.getElementById('username').required = true;
+                        document.getElementById('password').required = true;
+                        
+                        // Focus on Username field
+                        setTimeout(() => document.getElementById('username').focus(), 300);
+
+                        // Update submit button
+                        btnSubmit.disabled = false;
+                        btnSubmit.innerHTML = `<span>Sign In</span> <i class="fa-solid fa-right-to-bracket"></i>`;
+                        
+                        // Show brief success tip
+                        alertBox.className = "alert-message alert-success";
+                        alertText.textContent = `Workspace '${orgName}' verified. Enter credentials.`;
+                        alertBox.style.display = 'flex';
+                    } else {
+                        // Workspace not found
+                        btnSubmit.disabled = false;
+                        btnSubmit.innerHTML = `<span>Continue</span> <i class="fa-solid fa-arrow-right"></i>`;
+                        
+                        alertBox.className = "alert-message alert-error";
+                        alertText.textContent = "Workspace does not exist. Please check spelling.";
+                        alertBox.style.display = 'flex';
+                        orgInput.focus();
+                    }
+                } catch (err) {
+                    btnSubmit.disabled = false;
+                    btnSubmit.innerHTML = `<span>Continue</span> <i class="fa-solid fa-arrow-right"></i>`;
+                    
+                    alertBox.className = "alert-message alert-error";
+                    alertText.textContent = "Network error. Please try again.";
+                    alertBox.style.display = 'flex';
+                }
+            } else {
+                // Perform Step 2 Session Authenticate API Call
+                const orgName = orgInput.value.trim();
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value;
+
+                btnSubmit.disabled = true;
+                btnSubmit.innerHTML = `Logging in... <i class="fa-solid fa-circle-notch fa-spin"></i>`;
+
+                const payload = {
+                    organization_name: orgName,
+                    username,
+                    password
+                };
+
+                try {
+                    const csrfToken = getCookie('csrftoken');
+                    const response = await fetch('/api/contracts/auth/login/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrfToken
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        // Success redirect to dashboard
+                        window.location.href = '/';
+                    } else {
+                        btnSubmit.disabled = false;
+                        btnSubmit.innerHTML = `<span>Sign In</span> <i class="fa-solid fa-right-to-bracket"></i>`;
+                        
+                        alertBox.className = "alert-message alert-error";
+                        alertText.textContent = data.error || "Authentication failed.";
+                        alertBox.style.display = 'flex';
+                    }
+                } catch (err) {
+                    btnSubmit.disabled = false;
+                    btnSubmit.innerHTML = `<span>Sign In</span> <i class="fa-solid fa-right-to-bracket"></i>`;
+                    
+                    alertBox.className = "alert-message alert-error";
+                    alertText.textContent = "Network error occurred. Please try again.";
+                    alertBox.style.display = 'flex';
+                }
+            }
+        }
+
+        // Helper to retrieve CSRF token cookie
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+</html>
