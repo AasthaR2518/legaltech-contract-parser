@@ -2,9 +2,25 @@ from django.test import TestCase
 from django.urls import reverse
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.auth.models import User
+from django.conf import settings
 from rest_framework import status
 from rest_framework.test import APIClient
+import jwt
+import datetime
 from .models import Document, Organization, UserProfile
+
+def get_jwt_token_for_user(user):
+    profile = user.userprofile
+    payload = {
+        'sub': str(user.id),
+        'username': user.username,
+        'email': user.email,
+        'org': profile.organization.name,
+        'role': profile.role,
+        'iat': datetime.datetime.utcnow(),
+        'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24)
+    }
+    return jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
 
 class DocumentUploadTests(TestCase):
     def setUp(self):
@@ -12,7 +28,8 @@ class DocumentUploadTests(TestCase):
         self.org = Organization.objects.create(name="TestOrg")
         self.user = User.objects.create_user(username="testuser", password="password")
         self.profile = UserProfile.objects.create(user=self.user, organization=self.org, role="ADMIN")
-        self.client.login(username="testuser", password="password")
+        token = get_jwt_token_for_user(self.user)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
         self.upload_url = reverse('document-upload')
 
     def test_upload_valid_pdf_success(self):
@@ -123,7 +140,8 @@ class DocumentDownloadTests(TestCase):
         self.org = Organization.objects.create(name="TestOrg")
         self.user = User.objects.create_user(username="testuser", password="password")
         self.profile = UserProfile.objects.create(user=self.user, organization=self.org, role="ADMIN")
-        self.client.login(username="testuser", password="password")
+        token = get_jwt_token_for_user(self.user)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
 
     def test_download_zip_package(self):
         # Create mock file contents
@@ -233,6 +251,63 @@ class DocumentAnalysisTests(TestCase):
         
         medium_risks = risk_flags.filter(risk_level="MEDIUM")
         self.assertTrue(medium_risks.exists()) # indemnify and hold harmless
+
+
+class JWTAuthenticationTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.org = Organization.objects.create(name="TestOrg")
+        self.user = User.objects.create_user(username="testuser", password="password")
+        self.profile = UserProfile.objects.create(user=self.user, organization=self.org, role="ADMIN")
+        self.url = reverse('document-list') # Protected endpoint
+
+    def test_valid_jwt_authenticates_successfully(self):
+        token = get_jwt_token_for_user(self.user)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_missing_jwt_returns_unauthorized(self):
+        self.client.credentials() # Clear credentials
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_malformed_jwt_returns_unauthorized(self):
+        self.client.credentials(HTTP_AUTHORIZATION='Bearer malformed.token.string')
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_none_algorithm_attack_is_rejected(self):
+        import base64
+        import json
+        header = {"alg": "none", "typ": "JWT"}
+        payload = {
+            "sub": str(self.user.id),
+            "username": self.user.username,
+            "org": self.org.name,
+            "role": "ADMIN"
+        }
+        header_b64 = base64.urlsafe_b64encode(json.dumps(header).encode()).decode().rstrip("=")
+        payload_b64 = base64.urlsafe_b64encode(json.dumps(payload).encode()).decode().rstrip("=")
+        none_token = f"{header_b64}.{payload_b64}."
+        
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {none_token}')
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_algorithm_confusion_attack_is_rejected(self):
+        # Generate token signed with HS256 but change header to RS256
+        token = get_jwt_token_for_user(self.user)
+        parts = token.split('.')
+        import base64
+        import json
+        header = {"alg": "RS256", "typ": "JWT"}
+        header_b64 = base64.urlsafe_b64encode(json.dumps(header).encode()).decode().rstrip("=")
+        confused_token = f"{header_b64}.{parts[1]}.{parts[2]}"
+        
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {confused_token}')
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
 

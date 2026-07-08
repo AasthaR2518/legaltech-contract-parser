@@ -1,9 +1,25 @@
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.http import JsonResponse
+from django.conf import settings
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
+import jwt
+import datetime
 from .models import Organization, UserProfile
+
+def generate_jwt_token(user):
+    profile = user.userprofile
+    payload = {
+        'sub': str(user.id),
+        'username': user.username,
+        'email': user.email,
+        'org': profile.organization.name,
+        'role': profile.role,
+        'iat': datetime.datetime.utcnow(),
+        'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24)
+    }
+    return jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -88,10 +104,13 @@ def register_user(request):
         role=role
     )
 
-    # Log in session automatically
-    login(request, user)
-
-    return JsonResponse({"message": "Registration successful!", "role": role, "organization": organization.name}, status=201)
+    token = generate_jwt_token(user)
+    return JsonResponse({
+        "message": "Registration successful!",
+        "token": token,
+        "role": role,
+        "organization": organization.name
+    }, status=201)
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -125,23 +144,23 @@ def login_user(request):
     except UserProfile.DoesNotExist:
         return JsonResponse({"error": "User does not have an active profile."}, status=403)
 
-    # Log in session
-    login(request, user)
+    # Generate JWT token
+    token = generate_jwt_token(user)
 
     return JsonResponse({
         "message": "Login successful!",
+        "token": token,
         "username": user.username,
         "organization": organization.name,
         "role": user_profile.role
     })
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def logout_user(request):
     """
     Logs out standard authenticated session.
     """
-    logout(request)
     return JsonResponse({"message": "Logout successful!"})
 
 @api_view(['GET'])

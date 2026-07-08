@@ -243,6 +243,11 @@
     </div>
 
     <script>
+        // Auto redirect if already logged in
+        if (localStorage.getItem('jwt_token')) {
+            window.location.href = '/';
+        }
+
         let currentStep = 1;
 
         async function handleFormSubmit(e) {
@@ -328,12 +333,10 @@
                 };
 
                 try {
-                    const csrfToken = getCookie('csrftoken');
                     const response = await fetch('/api/contracts/auth/login/', {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': csrfToken
+                            'Content-Type': 'application/json'
                         },
                         body: JSON.stringify(payload)
                     });
@@ -341,6 +344,8 @@
                     const data = await response.json();
 
                     if (response.ok) {
+                        // Store JWT token in localStorage
+                        localStorage.setItem('jwt_token', data.token);
                         // Success redirect to dashboard
                         window.location.href = '/';
                     } else {
@@ -360,22 +365,6 @@
                     alertBox.style.display = 'flex';
                 }
             }
-        }
-
-        // Helper to retrieve CSRF token cookie
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
         }
     </script>
 </body>

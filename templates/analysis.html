@@ -425,6 +425,11 @@
     </footer>
 
     <script>
+        // Redirect immediately if not authenticated
+        if (!localStorage.getItem('jwt_token')) {
+            window.location.href = '/login/';
+        }
+
         // Extract Document UUID from URL path: /contract/<uuid>/
         const pathSegments = window.location.pathname.split('/');
         const docId = pathSegments[pathSegments.length - 2];
@@ -432,8 +437,13 @@
         async function loadContractDetails() {
             const mainContent = document.getElementById('main-content');
             try {
-                const response = await fetch(`/api/contracts/${docId}/`);
+                const response = await fetch(`/api/contracts/${docId}/`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
+                    }
+                });
                 if (response.status === 401 || response.status === 403) {
+                    localStorage.removeItem('jwt_token');
                     window.location.href = '/login/';
                     return;
                 }
@@ -601,9 +611,9 @@
                             <i class="fa-solid fa-gear"></i> Actions
                         </div>
                         <div class="actions-area">
-                            <a href="/api/contracts/${doc.id}/download/" class="btn-action download">
+                            <button onclick="downloadZip('${doc.id}', '${doc.original_name.replace(/'/g, "\\'")}')" class="btn-action download" style="background-color: #0284c7; border: none; cursor: pointer; color: white;">
                                 <i class="fa-solid fa-download"></i> Download ZIP
-                            </a>
+                            </button>
                             <button onclick="deleteContract('${doc.id}')" class="btn-action delete">
                                 <i class="fa-solid fa-trash-can"></i> Delete File
                             </button>
@@ -694,11 +704,10 @@
             }
 
             try {
-                const csrfToken = getCookie('csrftoken');
                 const response = await fetch(`/api/contracts/${docId}/`, {
                     method: 'DELETE',
                     headers: {
-                        'X-CSRFToken': csrfToken
+                        'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
                     }
                 });
                 
@@ -713,26 +722,40 @@
             }
         }
 
-        // Retrieve CSRF cookie token helper
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
+        // Secure file download helper via Bearer Token
+        async function downloadZip(docId, filename) {
+            try {
+                const response = await fetch(`/api/contracts/${docId}/download/`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
                     }
+                });
+                if (!response.ok) {
+                    alert("Failed to download package.");
+                    return;
                 }
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${filename}_analysis_package.zip`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+            } catch (err) {
+                alert("Error during download.");
             }
-            return cookieValue;
         }
 
         // Fetch and load organization workspace name
         async function loadUserProfile() {
             try {
-                const response = await fetch('/api/contracts/auth/profile/');
+                const response = await fetch('/api/contracts/auth/profile/', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
+                    }
+                });
                 if (response.ok) {
                     const data = await response.json();
                     document.getElementById('org-workspace-badge').textContent = `${data.organization} Workspace`;
@@ -747,20 +770,18 @@
         async function handleLogout() {
             if (!confirm("Are you sure you want to log out from this workspace?")) return;
             try {
-                const csrfToken = getCookie('csrftoken');
                 const response = await fetch('/api/contracts/auth/logout/', {
                     method: 'POST',
                     headers: {
-                        'X-CSRFToken': csrfToken
+                        'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
                     }
                 });
-                if (response.ok) {
-                    window.location.href = '/login/';
-                } else {
-                    alert("Logout failed.");
-                }
+                
+                localStorage.removeItem('jwt_token');
+                window.location.href = '/login/';
             } catch (err) {
-                alert("Network error occurred during logout.");
+                localStorage.removeItem('jwt_token');
+                window.location.href = '/login/';
             }
         }
 

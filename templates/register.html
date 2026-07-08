@@ -293,6 +293,11 @@
     </div>
 
     <script>
+        // Auto redirect if already logged in
+        if (localStorage.getItem('jwt_token')) {
+            window.location.href = '/';
+        }
+
         let currentOrgAction = 'create'; // default action
 
         // Handle workspace action toggle
@@ -351,7 +356,7 @@
         }
 
         // Form submission handler
-        async function handleRegister(e) {
+        async function handleRegisterSubmit(e) {
             e.preventDefault();
             const errorAlert = document.getElementById('error-alert');
             const errorMsg = document.getElementById('error-message');
@@ -385,14 +390,10 @@
             };
 
             try {
-                // Get CSRF Token
-                const csrfToken = getCookie('csrftoken');
-
                 const response = await fetch('/api/contracts/auth/register/', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': csrfToken
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(payload)
                 });
@@ -400,6 +401,8 @@
                 const data = await response.json();
 
                 if (response.ok) {
+                    // Store JWT token in localStorage
+                    localStorage.setItem('jwt_token', data.token);
                     // Redirect to homepage dashboard
                     window.location.href = '/';
                 } else {

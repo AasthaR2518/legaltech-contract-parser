@@ -619,6 +619,11 @@
     </footer>
 
     <script>
+        // Redirect immediately if not authenticated
+        if (!localStorage.getItem('jwt_token')) {
+            window.location.href = '/login/';
+        }
+
         const fileInput = document.getElementById('file-input');
         const fileInfoContainer = document.getElementById('file-info-container');
         const selectedFileName = document.getElementById('selected-file-name');
@@ -678,8 +683,13 @@
         // Fetch all documents from REST API
         async function loadDocuments() {
             try {
-                const response = await fetch('/api/contracts/');
+                const response = await fetch('/api/contracts/', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
+                    }
+                });
                 if (response.status === 401 || response.status === 403) {
+                    localStorage.removeItem('jwt_token');
                     window.location.href = '/login/';
                     return;
                 }
@@ -714,9 +724,9 @@
                             </div>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <a href="/api/contracts/${doc.id}/download/" class="btn-download-icon" title="Download ZIP Package" onclick="event.stopPropagation()">
+                            <button class="btn-download-icon" title="Download ZIP Package" onclick="downloadZip('${doc.id}', '${doc.original_name.replace(/'/g, "\\'")}', event)" style="background: none; border: none; cursor: pointer; color: #38bdf8; font-size: 0.95rem;">
                                 <i class="fa-solid fa-download"></i>
-                            </a>
+                            </button>
                             <button class="btn-delete-icon" onclick="deleteDocument('${doc.id}', event)" title="Delete Document">
                                 <i class="fa-solid fa-trash-can"></i>
                             </button>
@@ -740,11 +750,10 @@
             }
 
             try {
-                const csrfToken = getCookie('csrftoken');
                 const response = await fetch(`/api/contracts/${docId}/`, {
                     method: 'DELETE',
                     headers: {
-                        'X-CSRFToken': csrfToken
+                        'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
                     }
                 });
                 
@@ -756,6 +765,33 @@
                 }
             } catch (err) {
                 showAlert("Network error occurred during deletion.", "error");
+            }
+        }
+
+        // Secure file download helper via Bearer Token
+        async function downloadZip(docId, filename, event) {
+            if (event) event.stopPropagation();
+            try {
+                const response = await fetch(`/api/contracts/${docId}/download/`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
+                    }
+                });
+                if (!response.ok) {
+                    alert("Failed to download package.");
+                    return;
+                }
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${filename}_analysis_package.zip`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+            } catch (err) {
+                alert("Error during download.");
             }
         }
 
@@ -789,11 +825,10 @@
             statusAlert.style.color = '#60a5fa';
 
             try {
-                const csrfToken = getCookie('csrftoken');
                 const response = await fetch('/api/contracts/upload/', {
                     method: 'POST',
                     headers: {
-                        'X-CSRFToken': csrfToken
+                        'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
                     },
                     body: formData
                 });
@@ -815,26 +850,14 @@
             }
         }
 
-        // Retrieve CSRF cookie token helper
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-
         // Fetch and load organization workspace name
         async function loadUserProfile() {
             try {
-                const response = await fetch('/api/contracts/auth/profile/');
+                const response = await fetch('/api/contracts/auth/profile/', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
+                    }
+                });
                 if (response.ok) {
                     const data = await response.json();
                     document.getElementById('org-workspace-badge').textContent = `${data.organization} Workspace`;
@@ -855,7 +878,11 @@
         async function loadTeamMembers() {
             const listContainer = document.getElementById('team-members-list');
             try {
-                const response = await fetch('/api/contracts/auth/team/');
+                const response = await fetch('/api/contracts/auth/team/', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
+                    }
+                });
                 if (response.ok) {
                     const members = await response.json();
                     
@@ -896,12 +923,11 @@
             };
 
             try {
-                const csrfToken = getCookie('csrftoken');
                 const response = await fetch('/api/contracts/auth/team/create-user/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRFToken': csrfToken
+                        'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
                     },
                     body: JSON.stringify(payload)
                 });
@@ -924,20 +950,19 @@
         async function handleLogout() {
             if (!confirm("Are you sure you want to log out from this workspace?")) return;
             try {
-                const csrfToken = getCookie('csrftoken');
                 const response = await fetch('/api/contracts/auth/logout/', {
                     method: 'POST',
                     headers: {
-                        'X-CSRFToken': csrfToken
+                        'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
                     }
                 });
-                if (response.ok) {
-                    window.location.href = '/login/';
-                } else {
-                    alert("Logout failed.");
-                }
+                
+                // Clear token regardless of response status
+                localStorage.removeItem('jwt_token');
+                window.location.href = '/login/';
             } catch (err) {
-                alert("Network error occurred during logout.");
+                localStorage.removeItem('jwt_token');
+                window.location.href = '/login/';
             }
         }
 
